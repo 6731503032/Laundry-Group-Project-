@@ -1,6 +1,15 @@
 THINGS TO WORK ON: 
 
 
+
+FRONTEND CODING:
+AJAX/THYMELEAF/REACTJS
+
+BACKEND CODING:
+JPA/REST API/MVC
+
+
+
 Customer 
 Create new account
 Login
@@ -24,3 +33,4 @@ Booking
 Payment Confirmed Students
 Rating
 Registered Student
+
