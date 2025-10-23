@@ -13,7 +13,7 @@
 
     <artifactId>frontend</artifactId>
     <packaging>jar</packaging>
-    <name>Concert Booking Frontend</name>
+    <name>Laundry Managment Frontend</name>
     <description>Frontend module for Concert Booking System</description>
 
     <properties>
