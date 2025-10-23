@@ -1,1 +1,33 @@
-//add code
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Page</title>
+    </head>
+<body>
+    <div class="navbar">
+        <h1>Booking System</h1>
+        <div class="navbar-right">
+            <div class="user-info">
+                <span th:text="${user.name}">Username</span>
+                <span class="role-badge" th:text="${user.role}">Role</span>
+            </div>
+            <a th:href="@{/logout}" class="logout-btn">Logout</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="welcome-card">
+            <h2>Welcome, <span th:text="${user.name}">User</span>!</h2>
+            <p>You are logged in as a <span th:text="${user.role}">role</span></p>
+        </div>
+        
+        <div class="booking-content">
+            <h3>Booking Dashboard</h3>
+            <p>This is your booking page. Add your booking functionality here.</p>
+            <!-- Add your booking form and features here -->
+        </div>
+    </div>
+</body>
+</html>
