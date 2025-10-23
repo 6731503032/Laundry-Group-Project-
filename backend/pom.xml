@@ -6,15 +6,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>th.mfu</groupId>
-        <artifactId>lab-web-fullstack</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.7.14</version>
+        <relativePath/>
     </parent>
 
+    <groupId>com.laundry</groupId>
     <artifactId>backend</artifactId>
-    <packaging>jar</packaging>
-    <name>Concert Booking Backend</name>
-    <description>Backend API module for Concert Booking System</description>
+    <version>1.0-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -23,6 +23,13 @@
     </properties>
 
     <dependencies>
+        <!-- Model Module -->
+        <dependency>
+            <groupId>com.laundry</groupId>
+            <artifactId>model</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
         <!-- Spring Boot Starter Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -76,9 +83,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <mainClass>th.mfu.App</mainClass>
-                </configuration>
             </plugin>
         </plugins>
     </build>
