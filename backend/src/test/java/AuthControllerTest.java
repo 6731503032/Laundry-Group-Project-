@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * - Missing studentId/email validation
  * - Missing password validation
  */
-@SpringBootTest
+@SpringBootTest(classes = App.class)
 @TestPropertySource(locations = "classpath:application-test.properties")
 public class AuthControllerTest {
 
