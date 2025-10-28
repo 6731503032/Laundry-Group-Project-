@@ -254,11 +254,8 @@
                   <td>
                     <span
                       class="badge"
-                      th:classappend="${booking.status == 'Confirmed'} ? 'bg-success' : 
-                                                         ${booking.status == 'Pending'} ? 'bg-warning' : 
-                                                         ${booking.status == 'Cancelled'} ? 'bg-danger' : 'bg-secondary'"
-                      th:text="${booking.status}"
-                      Confirmed
+                      th:classappend="${booking.status.toString() == 'CONFIRMED' ? 'bg-success' : booking.status.toString() == 'PENDING' ? 'bg-warning' : booking.status.toString() == 'CANCELLED' ? 'bg-danger' : 'bg-secondary'}"
+                      th:text="${booking.status.displayName}"
                     </span>
                   </td>
                   <td th:text="${'$' + booking.amount}">$75.00</td>

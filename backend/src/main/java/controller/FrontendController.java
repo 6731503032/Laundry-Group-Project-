@@ -1,10 +1,17 @@
 package controller;
 
+import model.BookingStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import service.BookingService;
 
 @Controller
 public class FrontendController {
+
+    @Autowired
+    private BookingService bookingService;
 
     @GetMapping("/login")
     public String login() {
@@ -27,7 +34,13 @@ public class FrontendController {
     }
 
     @GetMapping("/booking")
-    public String booking() {
+    public String booking(Model model) {
+        // Add booking data to model
+        model.addAttribute("bookings", bookingService.getAllBookings());
+        model.addAttribute("totalBookings", bookingService.getTotalBookings());
+        model.addAttribute("confirmedBookings", bookingService.getBookingCountByStatus(BookingStatus.CONFIRMED));
+        model.addAttribute("pendingBookings", bookingService.getBookingCountByStatus(BookingStatus.PENDING));
+        model.addAttribute("cancelledBookings", bookingService.getBookingCountByStatus(BookingStatus.CANCELLED));
         return "booking";
     }
 
