@@ -1,6 +1,23 @@
-TO DO THIS WEEK(LOGIN PAGE):
+TO DO THIS WEEK(BOOKING AND TIMER PAGE):
 
-LOGIN PAGE WILL HAVE 2 WAYS TO LOGIN DIVIDED BY ROLE IN USER.java(manager and student) VALIDATE IF THE USER IS CORRECT WITH THE LOGIN FORM VALIDATE BY name and password in USER.java which info found in user.sql
+BOOKING PAGE will be in columns(as shown in wireframe.png with 3 hours interval for each column) 
+When the column booking is clicked, it takes you to confirm and fill form(Automated fill if possible from username)
+After confirming the fill ---> Timer Page
+
+
+Tmer Page:
+clock icon with countdown (15 mins) middle of the screen just like login(include in the dashboard or not, YOUR CHOICE)
+Admin will have to approve the timer so it can complete and move forward.
+
+The data will then be stored in a new database for the queue after approved by admin
+
+After confirming, show and display your booked schedule in the dashboard.
+
+
+
+
+
+
 
 1.IF VALIDATION SUCCESSFUL, direct to booking page 2. IF NOT SUCCESSFUL, give error
 
@@ -27,3 +44,4 @@ Admin The money is given Editing Page for Washing Machine Editing Page for Stude
 Database :  Booking Payment Confirmed Students Rating Registered Student
 
 FRONTEND CODING: AJAX/THYMELEAF/REACTJS
+
