@@ -19,9 +19,26 @@ After confirming, show and display your booked schedule in the dashboard.
 
 
 
-1.IF VALIDATION SUCCESSFUL, direct to booking page 2. IF NOT SUCCESSFUL, give error
 
-THERE IS ALSO CREATE ACCOUNT PAGE with the button in login page, THINGS TO BE ASKED FOR CREATION found in user.java:
+-
+-
+-
+-
+-
+-
+-
+--
+-
+-
+-
+-
+-
+-
+-
+-
+-
+--
+
 private String studentId;
 
 @Column(nullable = false)
@@ -44,4 +61,5 @@ Admin The money is given Editing Page for Washing Machine Editing Page for Stude
 Database :  Booking Payment Confirmed Students Rating Registered Student
 
 FRONTEND CODING: AJAX/THYMELEAF/REACTJS
+
 
