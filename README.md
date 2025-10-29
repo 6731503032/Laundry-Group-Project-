@@ -4,7 +4,7 @@ BOOKING PAGE will be in columns(as shown in wireframe.png with 3 hours interval 
 When the column booking is clicked, it takes you to confirm and fill form(Automated fill if possible from username)
 <img width="609" height="374" alt="image" src="https://github.com/user-attachments/assets/15c66020-41d7-4611-af02-f0077d0ce2c6" />
 
-After confirming the fill ---> Timer Page
+After confirming the fill ---> Timer Page  (KEEP THE COLOR CONSISTENT FROM THE LOGIN PAGE)**
 
 <img width="494" height="243" alt="image" src="https://github.com/user-attachments/assets/2b2aeede-886d-4594-9432-06c422fe4d14" />
 
@@ -68,6 +68,7 @@ Admin The money is given Editing Page for Washing Machine Editing Page for Stude
 Database :  Booking Payment Confirmed Students Rating Registered Student
 
 FRONTEND CODING: AJAX/THYMELEAF/REACTJS
+
 
 
 
