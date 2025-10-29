@@ -1,1 +1,235 @@
-//add code //add code
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laundry Management System - Waiting for Approval</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #E7F5FF;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .page-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #004a99;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            max-width: 450px;
+            width: 100%;
+        }
+
+        .right-panel {
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .icon-container {
+            width: 90px;  /* Made larger */
+            height: 90px; /* Made larger */
+            background: #E7F5FF;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 48px; /* Made larger */
+            color: #007BFF;
+        }
+        
+        .form-title {
+            font-size: 28px;
+            color: #343A40;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .form-subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-weight: 400;
+            line-height: 1.6;
+        }
+
+        /* --- Countdown Timer Styles --- */
+        .countdown-timer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .countdown-timer .time-block {
+            text-align: center;
+        }
+        
+        .countdown-timer .colon {
+            font-size: 48px;
+            font-weight: 700;
+            color: #004a99;
+            padding-bottom: 20px; /* Align with numbers */
+        }
+        
+        .countdown-timer .time-block span {
+            display: block;
+        }
+        
+        .countdown-timer .time-block .number {
+            font-size: 60px;
+            font-weight: 700;
+            color: #004a99;
+            line-height: 1;
+        }
+        
+        .countdown-timer .time-block .label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            margin-top: 8px;
+            text-transform: uppercase;
+        }
+        
+        #statusMessage {
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        #statusMessage.success {
+            color: #155724; /* Green */
+        }
+        
+        #statusMessage.error {
+            color: #721c24; /* Red */
+        }
+
+    </style>
+</head>
+<body onload="startTimer()">
+
+    <header class="page-header">
+        <h1>Laundry Management Systems</h1>
+    </header>
+    
+    <div class="container">
+        <div class="right-panel">
+            
+            <div class="icon-container">
+                ⏱️
+            </div>
+
+            <h2 id="timerTitle" class="form-title">Waiting for Approval</h2>
+            <p id="timerSubtitle" class="form-subtitle">Your request has been sent. An admin has 15 minutes to approve it.</p>
+
+            <div class="countdown-timer">
+                <div class="time-block">
+                    <span id="minutes" class="number">15</span>
+                    <span class="label">Min</span>
+                </div>
+                <div class="colon">:</div>
+                <div class="time-block">
+                    <span id="seconds" class="number">00</span>
+                    <span class="label">Sec</span>
+                </div>
+            </div>
+            
+            <p id="statusMessage"></p>
+            
+        </div>
+    </div>
+
+    <script>
+        let timerInterval;
+
+        function startTimer() {
+            let duration = 60 * 15; // 15 minutes in seconds
+            const minutesEl = document.getElementById('minutes');
+            const secondsEl = document.getElementById('seconds');
+            const titleEl = document.getElementById('timerTitle');
+            const subtitleEl = document.getElementById('timerSubtitle');
+            const statusEl = document.getElementById('statusMessage');
+
+            timerInterval = setInterval(function () {
+                let minutes = Math.floor(duration / 60);
+                let seconds = duration % 60;
+
+                minutesEl.textContent = String(minutes).padStart(2, '0');
+                secondsEl.textContent = String(seconds).padStart(2, '0');
+
+                if (--duration < 0) {
+                    clearInterval(timerInterval);
+                    titleEl.textContent = "Request Timed Out";
+                    subtitleEl.textContent = "Your booking request was not approved in time. You are being redirected.";
+                    statusEl.textContent = "Please try again.";
+                    statusEl.className = 'error';
+                    
+                    // Redirect back to booking page after 3 seconds
+                    setTimeout(() => {
+                        window.location.href = 'booking.html'; // Adjust path if needed
+                    }, 3000);
+                }
+            }, 1000);
+            
+            // ** SIMULATE ADMIN APPROVAL **
+            // In a real app, this would be a WebSocket or server-sent event.
+            // For this demo, we'll simulate an approval after 10 seconds.
+            setTimeout(simulateAdminApproval, 10000);
+        }
+        
+        function simulateAdminApproval() {
+            // Stop the timer
+            clearInterval(timerInterval);
+            
+            const titleEl = document.getElementById('timerTitle');
+            const subtitleEl = document.getElementById('timerSubtitle');
+            const statusEl = document.getElementById('statusMessage');
+            
+            titleEl.textContent = "Booking Approved!";
+            subtitleEl.textContent = "Your slot is confirmed. Redirecting to your dashboard...";
+            statusEl.textContent = "Success!";
+            statusEl.className = 'success';
+            
+            // Here, you would store the data in the "new database for the queue"
+            console.log("Booking approved, saving to queue database...");
+            
+            // Redirect to the student dashboard after 3 seconds
+            setTimeout(() => {
+                // This is the redirect URL from your login.js
+                window.location.href = '/student/dashboard'; 
+            }, 3000);
+        }
+
+    </script>
+</body>
+</html>
