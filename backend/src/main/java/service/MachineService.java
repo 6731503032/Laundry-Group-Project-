@@ -99,7 +99,6 @@ public class MachineService {
     public Machine createMachine(String machineNumber, String type, String location, String description) {
         Machine machine = new Machine();
         machine.setMachineNumber(machineNumber);
-        machine.setType(type);
         machine.setLocation(location);
         machine.setDescription(description);
         machine.setStatus(AppConstants.STATUS_AVAILABLE);
