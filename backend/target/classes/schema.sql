@@ -12,15 +12,19 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS machines (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    machine_number VARCHAR(255) UNIQUE NOT NULL,
+    machine_number VARCHAR(255) NOT NULL UNIQUE,
     status VARCHAR(50),
-    type VARCHAR(100),
     location VARCHAR(255),
     description TEXT,
     current_user_id BIGINT,
-    usage_start_time TIMESTAMP,
-    FOREIGN KEY (current_user_id) REFERENCES users(id)
+    usage_start_time DATETIME,
+    CONSTRAINT fk_current_user
+        FOREIGN KEY (current_user_id)
+        REFERENCES users(id)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE
 );
+
 
 CREATE TABLE IF NOT EXISTS bookings (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,

@@ -1,474 +1,458 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Laundry Management System - Login</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: #E7F5FF;
-            min-height: 100vh;
-            display: flex;
-            /* [CHANGED] Stack elements vertically */
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        /* [NEW] Style for the new page header */
-        .page-header {
-            text-align: center;
-            margin-bottom: 24px;
-        }
-
-        .page-header h1 {
-            font-size: 24px;
-            font-weight: 600;
-            /* A complementary darker blue */
-            color: #004a99; 
-        }
-
-        .container {
-            background: white;
-            border-radius: 16px; 
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); 
-            overflow: hidden;
-            max-width: 450px;
-            width: 100%;
-        }
-
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Poppins", sans-serif;
+        background: #e7f5ff;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+      .page-header {
+        text-align: center;
+        margin-bottom: 24px;
+      }
+      .page-header h1 {
+        font-size: 24px;
+        font-weight: 600;
+        color: #004a99;
+      }
+      .container {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        max-width: 450px;
+        width: 100%;
+      }
+      .right-panel {
+        padding: 50px 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+      }
+      .icon-container {
+        width: 70px;
+        height: 70px;
+        background: #e7f5ff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 32px;
+        color: #007bff;
+      }
+      .form-container {
+        width: 100%;
+      }
+      .form-title {
+        font-size: 28px;
+        color: #343a40;
+        margin-bottom: 10px;
+        font-weight: 600;
+      }
+      .form-subtitle {
+        color: #666;
+        margin-bottom: 30px;
+        font-weight: 400;
+      }
+      .tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 30px;
+        border-bottom: 2px solid #e0e0e0;
+        justify-content: center;
+      }
+      .tab {
+        padding: 12px 24px;
+        background: none;
+        border: none;
+        color: #666;
+        font-size: 16px;
+        cursor: pointer;
+        position: relative;
+        transition: all 0.3s;
+        font-weight: 500;
+      }
+      .tab.active {
+        color: #007bff;
+        font-weight: 600;
+      }
+      .tab.active::after {
+        content: "";
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #007bff;
+      }
+      .form-content {
+        display: none;
+      }
+      .form-content.active {
+        display: block;
+      }
+      .form-group {
+        margin-bottom: 20px;
+        text-align: left;
+      }
+      .form-group label {
+        display: block;
+        color: #343a40;
+        margin-bottom: 8px;
+        font-weight: 500;
+      }
+      .form-group input,
+      .form-group select {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #dde1e7;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s;
+        font-family: "Poppins", sans-serif;
+      }
+      .form-group input:focus,
+      .form-group select:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+      }
+      .submit-btn {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+      .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(0, 123, 255, 0.4);
+        filter: brightness(1.1);
+      }
+      .submit-btn:active {
+        transform: translateY(0);
+      }
+      .submit-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .alert {
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-size: 14px;
+        display: none;
+        text-align: left;
+      }
+      .alert.show {
+        display: block;
+      }
+      .alert-success {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+      }
+      .alert-error {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+      }
+      .helper-text {
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+      }
+      @media (max-width: 768px) {
         .right-panel {
-            padding: 50px 40px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            text-align: center; 
+          padding: 30px 20px;
         }
-
-        .icon-container {
-            width: 70px;
-            height: 70px;
-            background: #E7F5FF; 
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            font-size: 32px;
-            color: #007BFF;
-        }
-
-        .form-container {
-            width: 100%;
-        }
-
         .form-title {
-            font-size: 28px;
-            color: #343A40;
-            margin-bottom: 10px;
-            font-weight: 600; 
+          font-size: 24px;
         }
-
-        .form-subtitle {
-            color: #666;
-            margin-bottom: 30px;
-            font-weight: 400; 
-        }
-
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #e0e0e0;
-            justify-content: center; 
-        }
-
-        .tab {
-            padding: 12px 24px;
-            background: none;
-            border: none;
-            color: #666;
-            font-size: 16px;
-            cursor: pointer;
-            position: relative;
-            transition: all 0.3s;
-            font-weight: 500;
-        }
-
-        .tab.active {
-            color: #007BFF;
-            font-weight: 600;
-        }
-
-        .tab.active::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: #007BFF;
-        }
-
-        .form-content {
-            display: none;
-        }
-
-        .form-content.active {
-            display: block;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-            text-align: left; 
-        }
-
-        .form-group label {
-            display: block;
-            color: #343A40;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #dde1e7;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: all 0.3s;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #007BFF;
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
-        }
-
-        .submit-btn {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0, 123, 255, 0.4);
-            filter: brightness(1.1);
-        }
-
-        .submit-btn:active {
-            transform: translateY(0);
-        }
-
-        .submit-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .alert {
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            display: none;
-            text-align: left; 
-        }
-
-        .alert.show {
-            display: block;
-        }
-
-        .alert-success {
-            background-color: #d4edda;
-            border: 1px solid #c3e6cb;
-            color: #155724;
-        }
-
-        .alert-error {
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
-            color: #721c24;
-        }
-
-        .helper-text {
-            font-size: 12px;
-            color: #666;
-            margin-top: 5px;
-        }
-
-        @media (max-width: 768px) {
-            .right-panel {
-                padding: 30px 20px;
-            }
-
-            .form-title {
-                font-size: 24px;
-            }
-        }
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <header class="page-header">
-        <h1>Laundry Management Systems</h1>
-        <h1>By Group 7</h1>
-        
+      <h1>Laundry Management Systems</h1>
+      <h1>By Group 7</h1>
     </header>
-    
+
     <div class="container">
-        <div class="right-panel">
-            <div class="form-container">
-                
-                <div class="icon-container">
-                    🧺
-                </div>
+      <div class="right-panel">
+        <div class="form-container">
+          <div class="icon-container">🧺</div>
 
-                <h2 class="form-title">Welcome Back</h2>
-                <p class="form-subtitle">Please login to your account</p>
+          <h2 class="form-title">Welcome Back</h2>
+          <p class="form-subtitle">Please login to your account</p>
 
-                <div id="alertMessage" class="alert"></div>
+          <div id="alertMessage" class="alert"></div>
 
-                <div class="tabs">
-                    <button class="tab active" onclick="switchTab('login')">Login</button>
-                    <button class="tab" onclick="switchTab('register')">Register</button>
-                </div>
+          <div class="tabs">
+            <button class="tab active" data-tab="login">Login</button>
+            <button class="tab" data-tab="register">Register</button>
+          </div>
+          <div class="form-group">
+            <label for="SelectRole">Role</label>
+            <select id="SelectRole" name="role" required>
+              <option value="">Select your role</option>
+              <option value="STUDENT">Student</option>
+              <option value="MANAGER">Manager</option>
+            </select>
+          </div>
+          <div id="loginForm" class="form-content active">
+            <form id="loginFormElement">
+              <div class="form-group">
+                <label for="loginIdentifier">Student ID or Email</label>
+                <input
+                  type="text"
+                  id="loginIdentifier"
+                  name="identifier"
+                  placeholder="Enter your student ID or email"
+                  required
+                />
+              </div>
 
-                <div id="loginForm" class="form-content active">
-                    <form id="loginFormElement" onsubmit="handleLogin(event)">
-                        <div class="form-group">
-                            <label for="loginIdentifier">Student ID or Email</label>
-                            <input type="text" id="loginIdentifier" name="identifier" 
-                                   placeholder="Enter your student ID or email" required>
-                        </div>
+              <div class="form-group">
+                <label for="loginPassword">Password</label>
+                <input
+                  type="password"
+                  id="loginPassword"
+                  name="password"
+                  placeholder="Enter your password"
+                  required
+                />
+              </div>
 
-                        <div class="form-group">
-                            <label for="loginPassword">Password</label>
-                            <input type="password" id="loginPassword" name="password" 
-                                   placeholder="Enter your password" required>
-                        </div>
+              <button type="submit" class="submit-btn" id="loginBtn">
+                Login
+              </button>
+            </form>
+          </div>
 
-                        <button type="submit" class="submit-btn" id="loginBtn">Login</button>
-                    </form>
-                </div>
+          <div id="registerForm" class="form-content">
+            <form id="registerFormElement">
+              <div class="form-group">
+                <label for="registerStudentId">Student ID</label>
+                <input
+                  type="text"
+                  id="registerStudentId"
+                  name="studentId"
+                  placeholder="Enter your student ID"
+                  required
+                />
+              </div>
 
-                <div id="registerForm" class="form-content">
-                    <form id="registerFormElement" onsubmit="handleRegister(event)">
-                        <div class="form-group">
-                            <label for="registerStudentId">Student ID</label>
-                            <input type="text" id="registerStudentId" name="studentId" 
-                                   placeholder="Enter your student ID" required>
-                        </div>
+              <div class="form-group">
+                <label for="registerName">Full Name</label>
+                <input
+                  type="text"
+                  id="registerName"
+                  name="name"
+                  placeholder="Enter your full name"
+                  required
+                />
+              </div>
 
-                        <div class="form-group">
-                            <label for="registerName">Full Name</label>
-                            <input type="text" id="registerName" name="name" 
-                                   placeholder="Enter your full name" required>
-                        </div>
+              <div class="form-group">
+                <label for="registerEmail">Email</label>
+                <input
+                  type="email"
+                  id="registerEmail"
+                  name="email"
+                  placeholder="Enter your email"
+                  required
+                />
+                <p class="helper-text">Use your university email</p>
+              </div>
 
-                        <div class="form-group">
-                            <label for="registerEmail">Email</label>
-                            <input type="email" id="registerEmail" name="email" 
-                                   placeholder="Enter your email" required>
-                            <p class="helper-text">Use your university email</p>
-                        </div>
+              <div class="form-group">
+                <label for="registerPassword">Password</label>
+                <input
+                  type="password"
+                  id="registerPassword"
+                  name="password"
+                  placeholder="Create a password"
+                  required
+                />
+              </div>
 
-                        <div class="form-group">
-                            <label for="registerPassword">Password</label>
-                            <input type="password" id="registerPassword" name="password" 
-                                   placeholder="Create a password" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="registerRole">Role</label>
-                            <select id="registerRole" name="role" required>
-                                <option value="">Select your role</option>
-                                <option value="STUDENT">Student</option>
-                                <option value="MANAGER">Manager</option>
-                            </select>
-                        </div>
-
-                        <button type="submit" class="submit-btn" id="registerBtn">Register</button>
-                    </form>
-                </div>
-            </div>
+              <button type="submit" class="submit-btn" id="registerBtn">
+                Register
+              </button>
+            </form>
+          </div>
         </div>
+      </div>
     </div>
 
     <script th:inline="javascript">
-        // Switch between login and register tabs
-        function switchTab(tab) {
-            const tabs = document.querySelectorAll('.tab');
-            tabs.forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
+      // 6. เปลี่ยนทุกอย่างเป็น JQUERY
+      $(document).ready(function () {
+        // --- Handle Tab Switching ---
+        $(".tab").on("click", function () {
+          var tabName = $(this).data("tab");
 
-            const loginForm = document.getElementById('loginForm');
-            const registerForm = document.getElementById('registerForm');
-            const alertMessage = document.getElementById('alertMessage');
-            
-            // Hide alert when switching tabs
-            alertMessage.classList.remove('show');
+          // 7. ใช้ $(this) และ .addClass/.removeClass
+          $(".tab").removeClass("active");
+          $(this).addClass("active");
 
-            if (tab === 'login') {
-                loginForm.classList.add('active');
-                registerForm.classList.remove('active');
-                document.querySelector('.form-title').textContent = 'Welcome Back';
-                document.querySelector('.form-subtitle').textContent = 'Please login to your account';
-            } else {
-                loginForm.classList.remove('active');
-                registerForm.classList.add('active');
-                document.querySelector('.form-title').textContent = 'Create Account';
-                document.querySelector('.form-subtitle').textContent = 'Please fill in your details';
-            }
-        }
+          // 8. ซ่อน Alert
+          $("#alertMessage").removeClass("show");
 
-        // Show alert message
+          if (tabName === "login") {
+            $("#loginForm").addClass("active");
+            $("#registerForm").removeClass("active");
+            $(".form-title").text("Welcome Back");
+            $(".form-subtitle").text("Please login to your account");
+          } else {
+            $("#loginForm").removeClass("active");
+            $("#registerForm").addClass("active");
+            $(".form-title").text("Create Account");
+            $(".form-subtitle").text("Please fill in your details");
+          }
+        });
+
+        // --- Show Alert Function (jQuery version) ---
         function showAlert(message, type) {
-            const alertDiv = document.getElementById('alertMessage');
-            alertDiv.textContent = message;
-            alertDiv.className = 'alert ' + (type === 'success' ? 'alert-success' : 'alert-error') + ' show';
+          $("#alertMessage")
+            .text(message)
+            .removeClass("alert-success alert-error")
+            .addClass("alert-" + type)
+            .addClass("show");
         }
 
-        // Handle login form submission
-        async function handleLogin(event) {
-            event.preventDefault();
-            
-            const identifier = document.getElementById('loginIdentifier').value;
-            const password = document.getElementById('loginPassword').value;
-            const loginBtn = document.getElementById('loginBtn');
-            
-            // Determine if identifier is email or studentId
-            const isEmail = identifier.includes('@');
-            const requestBody = {
-                password: password
-            };
-            
-            if (isEmail) {
-                requestBody.email = identifier;
-            } else {
-                requestBody.studentId = identifier;
-            }
+        // --- Handle Login (jQuery AJAX) ---
+        $("#loginFormElement").on("submit", function (event) {
+          event.preventDefault();
 
-            try {
-                loginBtn.disabled = true;
-                loginBtn.textContent = 'Logging in...';
+          // 9. ใช้ .val() เพื่อดึงค่า
+          var identifier = $("#loginIdentifier").val();
+          var password = $("#loginPassword").val();
+          var $loginBtn = $("#loginBtn");
 
-                const response = await fetch('/api/auth/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(requestBody)
-                });
+          var isEmail = identifier.includes("@");
+          var requestBody = {
+            password: password,
+          };
 
-                const data = await response.json();
+          if (isEmail) {
+            requestBody.email = identifier;
+          } else {
+            requestBody.studentId = identifier;
+          }
 
-                if (response.ok) {
-                    showAlert('Login successful! Redirecting...', 'success');
-                    
-                    // Store user data in sessionStorage
-                    sessionStorage.setItem('user', JSON.stringify(data));
-                    
-                    // Redirect based on role
-                    setTimeout(() => {
-                        if (data.role === 'MANAGER') {
-                            window.location.href = '/manager/dashboard';
-                        } else {
-                            window.location.href = '/student/dashboard';
-                        }
-                    }, 1000);
+          // 10. ใช้ .prop() และ .text()
+          $loginBtn.prop("disabled", true).text("Logging in...");
+
+          // 11. เปลี่ยน FETCH เป็น $.ajax
+          $.ajax({
+            type: "POST",
+            url: "/api/auth/login",
+            contentType: "application/json",
+            data: JSON.stringify(requestBody),
+            dataType: "json",
+            success: function (data) {
+              showAlert("Login successful! Redirecting...", "success");
+              sessionStorage.setItem("user", JSON.stringify(data));
+
+              setTimeout(function () {
+                if (data.role === "MANAGER") {
+                  window.location.href = "/manager/dashboard";
                 } else {
-                    showAlert(data.error || 'Invalid credentials. Please try again.', 'error');
+                  window.location.href = "/student/dashboard";
                 }
-            } catch (error) {
-                showAlert('An error occurred. Please try again later.', 'error');
-                console.error('Login error:', error);
-            } finally {
-                loginBtn.disabled = false;
-                loginBtn.textContent = 'Login';
-            }
-        }
+              }, 1000);
+            },
+            error: function (xhr) {
+              var errorMsg = xhr.responseJSON
+                ? xhr.responseJSON.error
+                : "Invalid credentials. Please try again.";
+              showAlert(errorMsg, "error");
+            },
+            complete: function () {
+              $loginBtn.prop("disabled", false).text("Login");
+            },
+          });
+        });
 
-        // Handle register form submission
-        async function handleRegister(event) {
-            event.preventDefault();
-            
-            const studentId = document.getElementById('registerStudentId').value;
-            const name = document.getElementById('registerName').value;
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            const role = document.getElementById('registerRole').value;
-            const registerBtn = document.getElementById('registerBtn');
+        // --- Handle Register (jQuery AJAX) ---
+        $("#registerFormElement").on("submit", function (event) {
+          event.preventDefault();
 
-            const requestBody = {
-                studentId: studentId,
-                name: name,
-                email: email,
-                password: password,
-                role: role
-            };
+          var $registerBtn = $("#registerBtn");
 
-            try {
-                registerBtn.disabled = true;
-                registerBtn.textContent = 'Registering...';
+          var requestBody = {
+            studentId: $("#registerStudentId").val(),
+            name: $("#registerName").val(),
+            email: $("#registerEmail").val(),
+            password: $("#registerPassword").val(),
+            role: $("#registerRole").val(),
+          };
 
-                const response = await fetch('/api/auth/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(requestBody)
-                });
+          $registerBtn.prop("disabled", true).text("Registering...");
 
-                const data = await response.json();
+          // 12. เปลี่ยน FETCH เป็น $.ajax
+          $.ajax({
+            type: "POST",
+            url: "/api/auth/register",
+            contentType: "application/json",
+            data: JSON.stringify(requestBody),
+            dataType: "json",
+            success: function (data) {
+              showAlert("Registration successful! Please login.", "success");
+              $("#registerFormElement")[0].reset(); // เคลียร์ฟอร์ม
 
-                if (response.ok) {
-                    showAlert('Registration successful! Please login.', 'success');
-                    
-                    // Clear form
-                    document.getElementById('registerFormElement').reset();
-                    
-                    // Switch to login tab after 2 seconds
-                    setTimeout(() => {
-                        document.querySelector('.tab:first-child').click();
-                    }, 2000);
-                } else {
-                    showAlert(data.error || 'Registration failed. Please try again.', 'error');
-                }
-            } catch (error)
- {
-                showAlert('An error occurred. Please try again later.', 'error');
-                console.error('Registration error:', error);
-            } finally {
-                registerBtn.disabled = false;
-                registerBtn.textContent = 'Register';
-            }
-        }
+              setTimeout(function () {
+                // 13. ใช้ .trigger('click') เพื่อสลับแท็บ
+                $('.tab[data-tab="login"]').trigger("click");
+              }, 2000);
+            },
+            error: function (xhr) {
+              var errorMsg = xhr.responseJSON
+                ? xhr.responseJSON.error
+                : "Registration failed. Please try again.";
+              showAlert(errorMsg, "error");
+            },
+            complete: function () {
+              $registerBtn.prop("disabled", false).text("Register");
+            },
+          });
+        });
+      });
     </script>
-</body>
+  </body>
 </html>

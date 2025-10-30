@@ -1,20 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Campus Laundry System - Dashboard</title>
+    
+    <meta name="_csrf" th:content="${_csrf?.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf?.headerName}"/>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        /* (CSS Styles ... เหมือนเดิม) */
         body { font-family: 'Inter', sans-serif; background-color: #f7f9fb; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
         .app-container { max-width: 1000px; width: 95%; margin: 20px auto; background: white; border-radius: 1rem; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); }
         .view { display: none; padding: 2rem; }
         .primary-btn { background-color: #3b82f6; color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; transition: background-color 0.3s, transform 0.1s; }
         .primary-btn:hover { background-color: #2563eb; }
         .primary-btn:active { transform: scale(0.98); }
-        .tab-btn { display: inline-block; py: 1; px: 3; font-size: 0.875rem; border-bottom-width: 2px; border-color: transparent; }
+        .tab-btn { display: inline-block; padding: 0.25rem 0.75rem; font-size: 0.875rem; border-bottom-width: 2px; border-color: transparent; }
         .tab-btn:hover { border-color: #9ca3af; }
         .tab-btn.active { border-color: #3b82f6; color: #3b82f6; font-weight: 700; }
         .card { background-color: #f9fafb; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); }
@@ -28,88 +33,123 @@
         <div class="flex space-x-4 items-center">
             <div id="nav-tabs" class="space-x-2">
                 <button data-target="dashboard-view" class="tab-btn active">Dashboard</button>
-                <a href="/student/booking" id="nav-booking-link" class="tab-btn hidden">Booking</a>
-                <button data-target="admin-view" id="nav-admin-link" class="tab-btn hidden">Admin Panel</button>
+                <a th:if="${currentUser.role == 'Student'}" th:href="@{/student/booking}" id="nav-booking-link" class="tab-btn">Booking</a>
+                <button th:if="${currentUser.role == 'Manager'}" data-target="admin-view" id="nav-admin-link" class="tab-btn">Admin Panel</button>
             </div>
-            <span id="user-info" class="text-sm text-gray-600 font-medium hidden sm:inline"></span>
+            <span id="user-info" class="text-sm text-gray-600 font-medium sm:inline"
+                  th:text="${currentUser.name} + ' (' + ${currentUser.role} + ')'">
+                  User Name (Role)
+            </span>
         </div>
     </nav>
 
     <div id="message-box" class="fixed top-5 right-5 z-50"></div>
     
-    <div id="dashboard-view" class="view">
-        <h2 class="text-3xl font-bold mb-6 text-gray-800">Welcome, <span id="user-display-name"></span></h2>
+    <div id="dashboard-view" class="view" style="display:block;">
+        <h2 class="text-3xl font-bold mb-6 text-gray-800">Welcome, <span id="user-display-name" th:text="${currentUser.name}">User</span></h2>
 
-        <div id="student-dashboard" class="hidden">
+        <div id="student-dashboard" th:if="${currentUser.role == 'Student'}">
             <h3 class="text-xl font-semibold mb-4 text-blue-600">Your Bookings</h3>
             <div id="student-bookings" class="space-y-4">
-                <p class="text-gray-500">No active bookings found. Ready to do some laundry?</p>
+                <div th:if="${#lists.isEmpty(studentBookings)}">
+                    <p class="text-gray-500">No active bookings found. Ready to do some laundry?</p>
+                </div>
+                <div th:unless="${#lists.isEmpty(studentBookings)}" th:each="booking : ${studentBookings}" 
+                     class="card flex justify-between items-center">
+                    <div>
+                        <p class="font-bold" th:text="${booking.machine.name}">Washer 1</p>
+                        <p class="text-sm text-gray-600" th:text="'Time: ' + ${booking.startTime} + ' - ' + ${booking.endTime}">Time: 10:00 - 11:00</p>
+                    </div>
+                    <span class="text-sm font-semibold px-3 py-1 rounded-full"
+                          th:text="${booking.status}"
+                          th:classappend="${booking.status == 'CONFIRMED' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
+                          PENDING
+                    </span>
+                </div>
             </div>
 
             <h3 class="text-xl font-semibold mt-8 mb-4 text-blue-600">Quick Status Overview</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="dashboard-stats">
-                </div>
+                 <div class="card bg-blue-500 text-white"><p class="text-sm opacity-80">Total Machines</p><p class="text-3xl font-bold mt-1" th:text="${studentStats.totalMachines}">0</p></div>
+                 <div class="card bg-emerald-500 text-white"><p class="text-sm opacity-80">Machines Available</p><p class="text-3xl font-bold mt-1" th:text="${studentStats.availableMachines}">0</p></div>
+                 <div class="card bg-amber-500 text-white"><p class="text-sm opacity-80">Machines In Use</p><p class="text-3xl font-bold mt-1" th:text="${studentStats.inUseMachines}">0</p></div>
+            </div>
             <p class="mt-6 text-center">
-                <a href="/student/booking" class="primary-btn">Go to Booking Page</a>
+                <a th:href="@{/student/booking}" class="primary-btn">Go to Booking Page</a>
             </p>
         </div>
 
-        <div id="manager-dashboard" class="hidden">
+        <div id="manager-dashboard" th:if="${currentUser.role == 'Manager'}">
             <h3 class="text-xl font-semibold mb-4 text-orange-600">System Performance Metrics</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="manager-stats">
-                 </div>
+                <div class="card bg-fuchsia-600 text-white"><p class="text-sm opacity-80">Washers Available</p><p class="text-3xl font-bold mt-1" th:text="${managerStats.availableWashers} + ' / ' + ${managerStats.totalWashers}">0 / 0</p></div>
+                <div class="card bg-purple-600 text-white"><p class="text-sm opacity-80">Dryers Available</p><p class="text-3xl font-bold mt-1" th:text="${managerStats.availableDryers} + ' / ' + ${managerStats.totalDryers}">0 / 0</p></div>
+                <div class="card bg-red-600 text-white"><p class="text-sm opacity-80">Out of Service</p><p class="text-3xl font-bold mt-1" th:text="${managerStats.outOfServiceMachines}">0</p></div>
+            </div>
 
-            <h3 class="text-xl font-semibold mt-8 mb-4 text-orange-600">Recent System Activity (Simulated)</h3>
-            <ul class="space-y-2 text-sm card">
-                <li class="border-b pb-2">Student S123 booked Washer 3 at 10:00 AM.</li>
-                <li class="border-b pb-2">Washer 1 completed cycle and is now available.</li>
-                <li class="pb-0">Manager M99 checked system logs.</li>
+            <h3 class="text-xl font-semibold mt-8 mb-4 text-orange-600">Recent System Activity</h3>
+            <div th:if="${#lists.isEmpty(recentActivities)}" class="card">
+                <p class.text-gray-500>No recent activity.</p>
+            </div>
+            <ul th:unless="${#lists.isEmpty(recentActivities)}" class="space-y-2 text-sm card">
+                <li th:each="activity : ${recentActivities}" class="border-b pb-2 last:border-b-0 last:pb-0"
+                    th:text="${activity.timestamp} + ': ' + ${activity.description}">
+                    Activity Log...
+                </li>
             </ul>
         </div>
     </div>
 
-    <div id="admin-view" class="view">
+    <div id="admin-view" class="view" th:if="${currentUser.role == 'Manager'}">
         <h2 class="text-3xl font-bold mb-6 text-gray-800">Manager Administration Panel</h2>
-
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2 card">
                 <h3 class="text-xl font-semibold mb-4">Machine Status Control</h3>
                 <div id="admin-machine-list" class="space-y-4">
-                    <p class="text-gray-500">Loading machines...</p>
+                    <div th:each="machine : ${allMachines}" class="flex items-center justify-between p-3 border-b hover:bg-gray-100 rounded-lg transition duration-150">
+                        <div class="flex-grow">
+                            <p class="font-bold" th:text="${machine.name} + ' (' + ${machine.id} + ')'">Machine Name (ID)</p>
+                            <p class="text-sm" 
+                               th:text="'Current: ' + ${machine.status}"
+                               th:classappend="${machine.status == 'Available' ? 'text-emerald-600' : (machine.status == 'In Use' ? 'text-orange-600' : 'text-red-600')}">
+                               Current: Status
+                            </p>
+                        </div>
+                        <select th:data-id="${machine.id}" class="machine-status-select border border-gray-300 rounded-md p-1 text-sm mr-4 w-40">
+                            <option th:each="status : ${allStatuses}"
+                                    th:value="${status}"
+                                    th:text="${status}"
+                                    th:selected="${status == machine.status}">
+                                Status
+                            </option>
+                        </select>
+                        <button th:data-id="${machine.id}" class="update-machine-btn primary-btn py-1 px-3 text-xs">Update</button>
+                    </div>
                 </div>
             </div>
 
             <div class="card">
                 <h3 class="text-xl font-semibold mb-4">User Management Summary</h3>
                 <ul id="admin-user-summary" class="space-y-3">
-                    </ul>
+                     <li th:each="user : ${allUsers}" class="flex justify-between items-center border-b pb-2">
+                        <span class="font-medium" th:text="${user.name}">User Name</span>
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full" 
+                              th:text="${user.role}"
+                              th:classappend="${user.role == 'Manager' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}">
+                              Role
+                        </span>
+                        <span class="text-xs text-gray-500" th:text="${user.id}">User ID</span>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // --- GLOBAL DATA & STATE ---
-    const users = [
-        { id: 'S12345', email: 'student@uni.edu', password: '123', role: 'Student', name: 'Alice Student' },
-        { id: 'M99', email: 'manager@uni.edu', password: '123', role: 'Manager', name: 'Bob Manager' }
-    ];
+    // --- 18. ลบ GLOBAL DATA (users, machines, machine_statuses, currentUser) ---
 
-    const machines = [
-        { id: 'W-01', name: 'Washer 1', type: 'Washer', status: 'Available', next_available: 'Ready now', location: 'Floor 1', capacity: 'Large' },
-        { id: 'D-01', name: 'Dryer 1', type: 'Dryer', status: 'In Use', next_available: '11:30 AM', location: 'Floor 1', capacity: 'Large' },
-        { id: 'W-02', name: 'Washer 2', type: 'Washer', status: 'Available', next_available: 'Ready now', location: 'Floor 2', capacity: 'Medium' },
-    ];
-
-    const machine_statuses = {
-        'Available': 'Available',
-        'In Use': 'In Use',
-        'Out of Service': 'Out of Service'
-    };
-
-    let currentUser = users[0]; // Auto-login as Alice Student
-
-    // --- UTILITIES ---
+    // --- UTILITIES (ยังคงเดิม) ---
     function showMessage(message, type = 'info') {
         const baseClass = "p-4 mb-2 rounded-lg shadow-lg text-white font-semibold transition-opacity duration-300";
         let colorClass = type === 'success' ? 'bg-emerald-500' : (type === 'error' ? 'bg-red-500' : 'bg-blue-500');
@@ -119,8 +159,7 @@
     }
 
     /**
-     * Switches the main application view.
-     * @param {string} viewId - ID of the view to show (e.g., 'dashboard-view').
+     * Switches the main application view. (ยังคงเดิม)
      */
     function showView(viewId) {
         $('.view').hide();
@@ -129,120 +168,83 @@
         // Update active tab
         $('#nav-tabs .tab-btn').removeClass('active');
         $(`#nav-tabs .tab-btn[data-target="${viewId}"]`).addClass('active');
-
-        // Run specific view loading logic
-        if (viewId === 'dashboard-view') {
-            loadDashboard();
-        } else if (viewId === 'admin-view') {
-            renderAdminView();
-        }
     }
 
-    // --- AUTHENTICATION LOGIC ---
-    function authenticateUser(user) {
-        $('#navbar').removeClass('hidden');
-        $('#user-info').text(`${user.name} (${user.role})`).show();
-        $('#user-display-name').text(user.name);
+    // --- 19. ลบ AUTHENTICATION LOGIC (authenticateUser) ---
+    // --- 20. ลบ DASHBOARD LOGIC (loadDashboard) ---
+    // --- 21. ลบ ADMIN LOGIC (renderAdminView) ---
 
-        if (user.role === 'Student') {
-            $('#student-dashboard').removeClass('hidden');
-            $('#manager-dashboard').addClass('hidden');
-            $('#nav-booking-link').removeClass('hidden');
-            showView('dashboard-view');
-        } else if (user.role === 'Manager') {
-            $('#manager-dashboard').removeClass('hidden');
-            $('#student-dashboard').addClass('hidden');
-            $('#nav-admin-link').removeClass('hidden');
-            showView('dashboard-view');
-        }
-
-        showMessage(`Welcome back, ${user.name}!`, 'success');
-    }
-
-    // --- DASHBOARD LOGIC ---
-    function loadDashboard() {
-        if (!currentUser) return;
-        if (currentUser.role === 'Student') {
-            const availableCount = machines.filter(m => m.status === 'Available').length;
-            const inUseCount = machines.filter(m => m.status === 'In Use').length;
-            const totalCount = machines.length;
-            const statsHtml = `
-                <div class="card bg-blue-500 text-white"><p class="text-sm opacity-80">Total Machines</p><p class="text-3xl font-bold mt-1">${totalCount}</p></div>
-                <div class="card bg-emerald-500 text-white"><p class="text-sm opacity-80">Machines Available</p><p class="text-3xl font-bold mt-1">${availableCount}</p></div>
-                <div class="card bg-amber-500 text-white"><p class="text-sm opacity-80">Machines In Use</p><p class="text-3xl font-bold mt-1">${inUseCount}</p></div>`;
-            $('#dashboard-stats').html(statsHtml);
-            
-            // ... (rest of student dashboard logic)
-             $('#student-bookings').html('<p class="text-gray-500">No active bookings found. Ready to do some laundry?</p>');
-
-        } else if (currentUser.role === 'Manager') {
-            const availableWashers = machines.filter(m => m.type === 'Washer' && m.status === 'Available').length;
-            const totalWashers = machines.filter(m => m.type === 'Washer').length;
-            const availableDryers = machines.filter(m => m.type === 'Dryer' && m.status === 'Available').length;
-            const totalDryers = machines.filter(m => m.type === 'Dryer').length;
-            const outOfService = machines.filter(m => m.status === 'Out of Service').length;
-            const statsHtml = `
-                <div class="card bg-fuchsia-600 text-white"><p class="text-sm opacity-80">Washers Available</p><p class="text-3xl font-bold mt-1">${availableWashers} / ${totalWashers}</p></div>
-                <div class="card bg-purple-600 text-white"><p class="text-sm opacity-80">Dryers Available</p><p class="text-3xl font-bold mt-1">${availableDryers} / ${totalDryers}</p></div>
-                <div class="card bg-red-600 text-white"><p class="text-sm opacity-80">Out of Service</p><p class="text-3xl font-bold mt-1">${outOfService}</p></div>`;
-            $('#manager-stats').html(statsHtml);
-        }
-    }
-    
-    // --- BOOKING LOGIC (REMOVED) ---
-
-    // --- ADMIN LOGIC (Manager) ---
-    function renderAdminView() {
-        if (currentUser.role !== 'Manager') return;
-        const $adminMachineList = $('#admin-machine-list').empty();
-        machines.forEach(machine => {
-            const currentStatus = machine.status;
-            const statusColor = currentStatus === 'Available' ? 'text-emerald-600' : (currentStatus === 'In Use' ? 'text-orange-600' : 'text-red-600');
-            const statusOptions = Object.keys(machine_statuses).map(status =>
-                `<option value="${status}" ${status === currentStatus ? 'selected' : ''}>${status}</option>`
-            ).join('');
-            const html = `
-                <div class="flex items-center justify-between p-3 border-b hover:bg-gray-100 rounded-lg transition duration-150">
-                    <div class="flex-grow"><p class="font-bold">${machine.name} (${machine.id})</p><p class="text-sm ${statusColor}">Current: ${currentStatus}</p></div>
-                    <select data-id="${machine.id}" class="machine-status-select border border-gray-300 rounded-md p-1 text-sm mr-4 w-40">${statusOptions}</select>
-                    <button data-id="${machine.id}" class="update-machine-btn primary-btn py-1 px-3 text-xs">Update</button>
-                </div>`;
-            $adminMachineList.append(html);
-        });
-
-        const $adminUserSummary = $('#admin-user-summary').empty();
-        users.forEach(user => {
-            const roleColor = user.role === 'Manager' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700';
-            $adminUserSummary.append(`
-                <li class="flex justify-between items-center border-b pb-2">
-                    <span class="font-medium">${user.name}</span>
-                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full ${roleColor}">${user.role}</span>
-                    <span class="text-xs text-gray-500">${user.id}</span>
-                </li>`);
-        });
-    }
-
-    $('#admin-machine-list').on('click', '.update-machine-btn', function() {
-        const machineId = $(this).data('id');
-        const newStatus = $(this).closest('.flex').find('.machine-status-select').val();
-        const machine = machines.find(m => m.id === machineId);
-        if (!machine) return;
+    // --- 22. (AJAX) แก้ไข Click Handler สำหรับปุ่ม Update ---
+    // ใช้ $(document).on(...) เพื่อให้ทำงานได้แม้ปุ่มจะถูกสร้างโดย Thymeleaf
+    $(document).on('click', '.update-machine-btn', function() {
         const $btn = $(this);
+        const machineId = $btn.data('id');
+        // หา select ที่อยู่แถวเดียวกับปุ่มที่ถูกกด
+        const $select = $btn.closest('.flex').find('.machine-status-select');
+        const newStatus = $select.val();
+
+        if (!machineId) return;
+
         $btn.text('Saving...').prop('disabled', true);
-        setTimeout(() => {
-            machine.status = newStatus;
-            machine.next_available = newStatus === 'Available' ? 'Ready now' : machine.next_available;
-            showMessage(`${machine.name} status updated to: ${newStatus}`, 'info');
-            $btn.text('Update').prop('disabled', false);
-            renderAdminView();
-        }, 1000);
+
+        // (Optional) ดึง CSRF token จาก <meta>
+        const token = $("meta[name='_csrf']").attr("content");
+        const header = $("meta[name='_csrf_header']").attr("content");
+
+        // 23. สร้าง AJAX Request
+        $.ajax({
+            type: 'POST',
+            url: '/api/admin/machines/status', // <-- Endpoint ที่ Server ต้องสร้างไว้
+            contentType: 'application/json',
+            data: JSON.stringify({
+                machineId: machineId,
+                newStatus: newStatus
+            }),
+            dataType: 'json',
+            beforeSend: function(xhr) {
+                // (Optional) ส่ง CSRF Token
+                if (header && token) {
+                    xhr.setRequestHeader(header, token);
+                }
+            },
+            success: function(response) {
+                // Server ตอบกลับ (สมมติว่า response คือ machine ที่อัปเดตแล้ว)
+                showMessage(`${response.name} status updated to: ${response.newStatus}`, 'info');
+                
+                // 24. อัปเดต UI โดยตรง (ไม่ต้องโหลดใหม่)
+                const $statusText = $btn.closest('.flex').find('p.text-sm');
+                $statusText.text('Current: ' + response.newStatus);
+                
+                // ลบสีเก่าออก
+                $statusText.removeClass('text-emerald-600 text-orange-600 text-red-600');
+                
+                // เพิ่มสีใหม่
+                if (response.newStatus === 'Available') {
+                    $statusText.addClass('text-emerald-600');
+                } else if (response.newStatus === 'In Use') {
+                    $statusText.addClass('text-orange-600');
+                } else {
+                    $statusText.addClass('text-red-600');
+                }
+            },
+            error: function(xhr) {
+                // กรณีเกิด Error
+                const errorMsg = xhr.responseJSON ? xhr.responseJSON.message : 'Update failed.';
+                showMessage(errorMsg, 'error');
+            },
+            complete: function() {
+                // ทำงานเสมอไม่ว่าจะ success หรือ error
+                $btn.text('Update').prop('disabled', false);
+            }
+        });
     });
 
     // --- INITIALIZATION ---
     $(document).ready(function() {
-        authenticateUser(currentUser);
+        // --- 25. ลบ authenticateUser() ---
+        // (Server แสดงหน้า Dashboard View ที่ถูกต้องให้ตั้งแต่แรกแล้ว)
 
-        // Global navigation handler (for Dashboard/Admin toggle)
+        // Global navigation handler (ยังคงเดิม)
         $(document).on('click', '#nav-tabs button.tab-btn', function() {
             const target = $(this).data('target');
             showView(target);

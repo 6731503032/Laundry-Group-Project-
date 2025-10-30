@@ -1,19 +1,19 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laundry Timer</title>
+    <title>Campus Laundry System - Timer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f7f9fb; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
         .app-container { max-width: 1000px; width: 95%; margin: 20px auto; background: white; border-radius: 1rem; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); }
-        .view { display: block; padding: 2rem; } /* ทำให้ view แสดงผลเลย */
-        .primary-btn { background-color: #3b82f6; color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; transition: background-color 0.3s; }
+        /* ทำให้ .view แสดงผลทันที ไม่ต้องซ่อน */
+        .view { padding: 0; } /* Timer view needs no padding on its container */
+        .primary-btn { background-color: #3b82f6; color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; transition: background-color 0.3s, transform 0.1s; }
         .primary-btn:hover { background-color: #2563eb; }
-        .card { background-color: #f9fafb; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); }
         .tab-btn { display: inline-block; padding: 0.25rem 0.75rem; font-size: 0.875rem; border-bottom-width: 2px; border-color: transparent; }
         .tab-btn:hover { border-color: #9ca3af; }
         .tab-btn.active { border-color: #3b82f6; color: #3b82f6; font-weight: 700; }
@@ -25,79 +25,143 @@
     <nav id="navbar" class="p-4 border-b border-gray-100 flex justify-between items-center rounded-t-xl bg-gray-50">
         <h1 class="text-2xl font-bold text-gray-800">Laundry Hub</h1>
         <div class="flex space-x-4 items-center">
-            <div class="space-x-2">
-                <a href="/dashboard" class="tab-btn">Dashboard</a>
-                <a href="/booking" class="tab-btn">Booking</a>
-            </div>
-            <span id="user-info" class="text-sm text-gray-600 font-medium sm:inline">(User Name)</span>
+            <div id="nav-tabs" class="space-x-2">
+                <a href="/student/dashboard" class="tab-btn">Dashboard</a>
+                <a href="booking.html" id="nav-booking-link" class="tab-btn active">Booking</a>
+                </div>
+            <span id="user-info" class="text-sm text-gray-600 font-medium hidden sm:inline"></span>
         </div>
     </nav>
 
-    <div id="timer-view" class="view text-center">
-        <h2 class="text-3xl font-bold mb-4 text-gray-800">Your Laundry is in Progress!</h2>
-        <p class="text-lg text-gray-600 mb-8">Machine: <span class="font-semibold text-blue-600" th:text="${machineName ?: 'Washer 1'}">Washer 1</span></p>
-
-        <div class="card max-w-md mx-auto">
-            <p class="text-sm font-medium text-gray-500 uppercase">Time Remaining</p>
-            <div id="timer-display" class="text-8xl font-extrabold text-gray-800 my-4">
-                45:00
+    <div id="timer-view" class="view text-center text-white rounded-b-xl min-h-[60vh] flex flex-col justify-center items-center" style="background-color: #2c1e4a;"> 
+        
+        <div id="timer-active">
+            <svg class="w-16 h-16 mb-4 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h2 class="text-3xl font-bold mb-4 tracking-widest uppercase">THE COUNTDOWN</h2>
+            <p id="timer-status-message" class="text-lg text-indigo-200 mb-8 transition-all">Waiting for Admin Approval...</p>
+            
+            <div id="timer-display" class="flex justify-center space-x-4 text-8xl font-extrabold my-4">
+                <div class="p-4 rounded-lg bg-white bg-opacity-10">
+                    <span id="timer-min">15</span>
+                </div>
+                <span class="self-center">:</span>
+                <div class="p-4 rounded-lg bg-white bg-opacity-10">
+                    <span id="timer-sec">00</span>
+                </div>
             </div>
-            <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
-                <div id="progress-bar" class="bg-blue-500 h-4 rounded-full transition-all duration-1000 ease-linear" style="width: 100%"></div>
-            </div>
+            
+            <p id="timer-subtext" class="mt-8 text-indigo-300">Your booking will be confirmed once approved (Max 15 mins).</p>
         </div>
 
-        <p class="mt-8 text-gray-500">You will be notified when your cycle is complete.</p>
-        
-        <a href="/rating" id="finish-link" class="primary-btn mt-6 hidden">
-            Cycle Finished! Click to Rate
-        </a>
-        
-        <a href="/dashboard" id="back-link" class="block mt-4 text-sm text-blue-500 hover:underline">
-            &larr; Back to Dashboard
-        </a>
+        <div id="approval-success" class="hidden">
+            <svg class="w-20 h-20 text-emerald-400 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h2 class="text-4xl font-bold text-emerald-400 mb-4">Booking Approved!</h2>
+            <p class="text-lg text-indigo-200 mb-8">Your schedule is confirmed. Redirecting to dashboard...</p>
+            <a href="/student/dashboard" class="primary-btn">Go to Dashboard Now</a>
+        </div>
     </div>
+
 </div>
 
 <script>
-$(document).ready(function() {
-    // --- Timer Logic ---
-    // (ในระบบจริง คุณควรดึงเวลาสิ้นสุดมาจาก Server/Thymeleaf)
-    // นี่คือตัวอย่างการจำลอง: ตั้งเวลาไว้ 45 นาที
-    let totalSeconds = 45 * 60; 
-    const initialTotalSeconds = totalSeconds;
+    let approvalTimerInterval = null;
+    let pendingBooking = null;
 
-    const $timerDisplay = $('#timer-display');
-    const $progressBar = $('#progress-bar');
-    const $finishLink = $('#finish-link');
-    const $backLink = $('#back-link');
+    // --- TIMER LOGIC (Admin Approval) ---
 
-    function updateTimer() {
-        if (totalSeconds < 0) {
-            clearInterval(timerInterval);
-            $timerDisplay.text("00:00");
-            $progressBar.width('0%');
-            $timerDisplay.addClass('text-emerald-500'); // เปลี่ยนเป็นสีเขียวเมื่อเสร็จ
-            $finishLink.removeClass('hidden'); // แสดงปุ่มไปหน้า Rating
-            $backLink.addClass('hidden'); // ซ่อนปุ่มกลับ
+    function startApprovalTimer() {
+        // 15 minute timer (15 * 60 seconds)
+        let totalSeconds = 15 * 60; 
+
+        const $min = $('#timer-min');
+        const $sec = $('#timer-sec');
+        
+        if (approvalTimerInterval) {
+            clearInterval(approvalTimerInterval);
+        }
+
+        // Reset UI to "waiting" state
+        $('#timer-active').removeClass('hidden');
+        $('#approval-success').addClass('hidden');
+        $('#timer-status-message').text('Waiting for Admin Approval...').removeClass('text-red-400 text-emerald-400');
+        $('#timer-subtext').text('Your booking will be confirmed once approved (Max 15 mins).');
+
+        approvalTimerInterval = setInterval(() => {
+            if (totalSeconds < 0) {
+                // Timer expired
+                clearInterval(approvalTimerInterval);
+                $min.text('00');
+                $sec.text('00');
+                $('#timer-status-message').text('Approval Time Expired').addClass('text-red-400');
+                $('#timer-subtext').text('Please go back and try booking again.');
+                sessionStorage.removeItem('pendingBooking'); // Clear expired booking
+                return;
+            }
+            
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            
+            $min.text(String(minutes).padStart(2, '0'));
+            $sec.text(String(seconds).padStart(2, '0'));
+            
+            totalSeconds--;
+        }, 1000);
+    }
+
+    function simulateAdminApproval(delay) {
+        setTimeout(() => {
+            if (approvalTimerInterval) {
+                clearInterval(approvalTimerInterval);
+            }
+            
+            $('#timer-active').addClass('hidden');
+            $('#approval-success').removeClass('hidden');
+            
+            // "store the data in a new database for the queue"
+            console.log('Booking Approved and Stored:', pendingBooking);
+            
+            // Clear the data from storage now that it's processed
+            sessionStorage.removeItem('pendingBooking');
+            
+            // "show and display your booked schedule in the dashboard."
+            // We'll redirect after 4 seconds.
+            setTimeout(() => {
+                 window.location.href = '/student/dashboard'; // หรือ 'booking.html'
+            }, 4000); 
+
+        }, delay); 
+    }
+
+    // --- INITIALIZATION ---
+    $(document).ready(function() {
+        // 1. ดึงข้อมูลการจองจาก sessionStorage
+        const bookingDataJSON = sessionStorage.getItem('pendingBooking');
+
+        if (!bookingDataJSON) {
+            // ถ้าไม่มีข้อมูล ให้ส่งกลับไปหน้าจอง
+            alert('No pending booking found. Redirecting to booking page.');
+            window.location.href = 'booking.html';
             return;
         }
 
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
+        // 2. แปลงข้อมูลกลับเป็น Object
+        pendingBooking = JSON.parse(bookingDataJSON);
 
-        // ทำให้เป็น 00:00
-        const displayMinutes = String(minutes).padStart(2, '0');
-        const displaySeconds = String(seconds).padStart(2, '0');
+        // 3. (Optional) แสดงชื่อผู้ใช้ในแถบนำทาง
+        if (pendingBooking.user) {
+            $('#user-info').text(`${pendingBooking.user} (Student)`).show();
+        }
 
-        $timerDisplay.text(`${displayMinutes}:${displaySeconds}`);
+        // 4. เริ่มจับเวลา 15 นาที
+        startApprovalTimer();
         
-        // อัปเดต Progress Bar
-        const percentRemaining = (totalSeconds / initialTotalSeconds) * 100;
-        $progressBar.width(percentRemaining + '%');
-
-        totalSeconds--;
-    }
-
-    // เริ่มการนับถอยหลัง
-    update
+        // 5. จำลองการอนุมัติจาก Admin (10 วินาที)
+        simulateAdminApproval(10000); // 10 second delay for demo
+    });
+</script>
+</body>
+</html>

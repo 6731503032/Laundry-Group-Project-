@@ -14,17 +14,11 @@ INSERT INTO users (student_id, name, email, password, role, is_active, created_a
 VALUES 
 ('STU002', 'Jane Smith', 'jane@example.com', 'password123', 'STUDENT', TRUE, NOW(), NOW());
 
-INSERT INTO machines (machine_number, status, type, location, description)
-VALUES 
-('WASH-001', 'AVAILABLE', 'WASHER', 'Building A', 'Front load washer');
+INSERT INTO machines (machine_number, status, location, description, current_user_id, usage_start_time) 
+VALUES ('001', 'Idle', 'Lamduan 3', 'Description', NULL, NULL);
 
-INSERT INTO machines (machine_number, status, type, location, description)
-VALUES 
-('WASH-002', 'AVAILABLE', 'WASHER', 'Building A', 'Front load washer');
-
-INSERT INTO machines (machine_number, status, type, location, description)
-VALUES 
-('DRY-001', 'AVAILABLE', 'DRYER', 'Building A', 'Electric dryer');
+INSERT INTO machines (machine_number, status, location, description, current_user_id, usage_start_time) 
+VALUES ('002', 'Idle', 'Lamduan 3', 'Description', NULL, NULL);
 
 INSERT INTO bookings (user_id, machine_id, booking_date, status, amount, service, created_at, updated_at)
 VALUES 
