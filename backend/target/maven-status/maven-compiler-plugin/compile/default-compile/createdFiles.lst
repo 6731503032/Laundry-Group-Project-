@@ -21,9 +21,7 @@ repo/MachineRepository.class
 repo/BookingRepository.class
 service/RatingService.class
 AuthController$LoginRequest.class
-controller/FrontendController.class
 model/Role.class
-ViewController.class
 model/Rating.class
 service/UserService.class
 model/User.class

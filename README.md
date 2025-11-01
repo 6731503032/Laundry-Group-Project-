@@ -28,47 +28,6 @@ After confirming, show and display your booked schedule in the dashboard.
 
 SYSTEM INTERACTION BETWEEN MANAGER,REGISTER USER AND BOOK MACHINE!
 
-
-
-
-
-
-
-
-
-
--
--
--
--
--
--
--
---
--
--
--
--
--
--
--
--
--
---
-
-private String studentId;
-
-@Column(nullable = false)
-private String name;
-
-@Column(nullable = false, unique = true)
-private String email;
-
-@Column(nullable = false)
-private String password;
-
-@Enumerated(EnumType.STRING)
-private Role role;
 THINGS TO WORK ON:
 
 Customer  Create new account Login Front page(Time-slot) Book slot page(which Machine)  Timer page after confirm Completion Page End​ Service Page(rating system)  Machine details Page
