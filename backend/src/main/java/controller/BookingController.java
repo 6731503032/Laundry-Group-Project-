@@ -180,4 +180,12 @@ public class BookingController {
         error.put("code", code);
         return error;
     }//
+
+
+
+@GetMapping("/timer")
+    public String showTimerPage() {
+        // "timer" คือชื่อไฟล์ timer.html ที่อยู่ใน /resources/templates
+        return "timer"; 
+    }
 }
