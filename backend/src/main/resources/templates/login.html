@@ -15,6 +15,7 @@
     />
 
     <style>
+      /* (CSS is unchanged) */
       * {
         margin: 0;
         padding: 0;
@@ -320,17 +321,12 @@
     </div>
 
     <script th:inline="javascript">
-      // 6. เปลี่ยนทุกอย่างเป็น JQUERY
       $(document).ready(function () {
         // --- Handle Tab Switching ---
         $(".tab").on("click", function () {
           var tabName = $(this).data("tab");
-
-          // 7. ใช้ $(this) และ .addClass/.removeClass
           $(".tab").removeClass("active");
           $(this).addClass("active");
-
-          // 8. ซ่อน Alert
           $("#alertMessage").removeClass("show");
 
           if (tabName === "login") {
@@ -346,7 +342,7 @@
           }
         });
 
-        // --- Show Alert Function (jQuery version) ---
+        // --- Show Alert Function ---
         function showAlert(message, type) {
           $("#alertMessage")
             .text(message)
@@ -359,7 +355,6 @@
         $("#loginFormElement").on("submit", function (event) {
           event.preventDefault();
 
-          // 9. ใช้ .val() เพื่อดึงค่า
           var identifier = $("#loginIdentifier").val();
           var password = $("#loginPassword").val();
           var $loginBtn = $("#loginBtn");
@@ -375,10 +370,8 @@
             requestBody.studentId = identifier;
           }
 
-          // 10. ใช้ .prop() และ .text()
           $loginBtn.prop("disabled", true).text("Logging in...");
 
-          // 11. เปลี่ยน FETCH เป็น $.ajax
           $.ajax({
             type: "POST",
             url: "/api/auth/login",
@@ -391,9 +384,11 @@
 
               setTimeout(function () {
                 if (data.role === "MANAGER") {
-                  window.location.href = "/manager/dashboard";
+                  // --- THIS IS THE FIX ---
+                  // It now uses the studentId (or equivalent ID) from the API
+                  window.location.href = "/manager/" + data.studentId + "/dashboard";
                 } else {
-                  window.location.href = "/student/dashboard";
+                  window.location.href = "/student/" + data.studentId + "/dashboard";
                 }
               }, 1000);
             },
@@ -420,12 +415,11 @@
             name: $("#registerName").val(),
             email: $("#registerEmail").val(),
             password: $("#registerPassword").val(),
-            role: $("#registerRole").val(),
+            role: $("#SelectRole").val(),
           };
 
           $registerBtn.prop("disabled", true).text("Registering...");
 
-          // 12. เปลี่ยน FETCH เป็น $.ajax
           $.ajax({
             type: "POST",
             url: "/api/auth/register",
@@ -434,10 +428,9 @@
             dataType: "json",
             success: function (data) {
               showAlert("Registration successful! Please login.", "success");
-              $("#registerFormElement")[0].reset(); // เคลียร์ฟอร์ม
+              $("#registerFormElement")[0].reset(); 
 
               setTimeout(function () {
-                // 13. ใช้ .trigger('click') เพื่อสลับแท็บ
                 $('.tab[data-tab="login"]').trigger("click");
               }, 2000);
             },

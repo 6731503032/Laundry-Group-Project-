@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import model.Role;
 import model.User;
 import repo.UserRepository;
 
@@ -82,5 +83,25 @@ public class UserService {
     /** Return all users (used by debug endpoint). Caller must not expose passwords. */
     public List<User> findAllUsers() {
         return userRepository.findAll();
+    }
+
+    /** Find user by studentId */
+    public User findByStudentId(String studentId) {
+        return userRepository.findByStudentId(studentId);
+    }
+
+    /** Find user by email */
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    /** Find users by role */
+    public List<User> findByRole(Role role) {
+        return userRepository.findByRole(role);
+    }
+
+    /** Find user by ID */
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
     }
 }

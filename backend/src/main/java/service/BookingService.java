@@ -1,14 +1,15 @@
 package service;
 
-import model.Booking;
-import model.BookingStatus;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import repo.BookingRepository;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service; // Make sure this import is correct
+
+import model.Booking;
+import model.BookingStatus;
+import repo.BookingRepository;
 
 @Service
 public class BookingService {
@@ -26,9 +27,11 @@ public class BookingService {
         return bookingRepository.findById(id);
     }
 
+    // --- THIS METHOD IS NOW FIXED ---
     // Get bookings by user ID
     public List<Booking> getBookingsByUserId(Long userId) {
-        return bookingRepository.findByUserId(userId);
+        // We now call the new "eager" query instead of the old "lazy" one.
+        return bookingRepository.findByUserIdWithDetails(userId);
     }
 
     // Get bookings by machine ID
@@ -47,6 +50,7 @@ public class BookingService {
     }
 
     public Long getBookingCountByStatus(BookingStatus status) {
+        // This is not efficient, but it matches your code.
         return (long) bookingRepository.findByStatus(status).size();
     }
 

@@ -1,387 +1,241 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout}">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Laundry System - Dashboard</title>
     
-    <th:block layout:fragment="extra-css">
-        <style>
-            .stats-card {
-                background: white;
-                border-radius: 0.75rem;
-                padding: 1.5rem;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-                transition: transform 0.3s, box-shadow 0.3s;
-                height: 100%;
-            }
-            
-            .stats-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            }
-            
-            .stats-icon {
-                width: 60px;
-                height: 60px;
-                border-radius: 12px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 1.5rem;
-                color: white;
-            }
-            
-            .stats-icon.blue {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            }
-            
-            .stats-icon.green {
-                background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            }
-            
-            .stats-icon.orange {
-                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            }
-            
-            .stats-icon.purple {
-                background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            }
-            
-            .chart-card {
-                background: white;
-                border-radius: 0.75rem;
-                padding: 1.5rem;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            }
-            
-            .recent-orders-table {
-                background: white;
-                border-radius: 0.75rem;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-                overflow: hidden;
-            }
-            
-            .table-header {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                padding: 1.25rem 1.5rem;
-            }
-            
-            .badge-status {
-                padding: 0.4rem 0.8rem;
-                border-radius: 20px;
-                font-size: 0.75rem;
-                font-weight: 600;
-            }
-            
-            .progress-thin {
-                height: 8px;
-                border-radius: 10px;
-            }
-        </style>
-    </th:block>
+    <meta name="_csrf" th:content="${_csrf?.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf?.headerName}"/>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7f9fb; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+        .app-container { max-width: 1000px; width: 95%; margin: 20px auto; background: white; border-radius: 1rem; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); }
+        .view { display: none; padding: 2rem; }
+        .primary-btn { background-color: #3b82f6; color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; transition: background-color 0.3s, transform 0.1s; }
+        .primary-btn:hover { background-color: #2563eb; }
+        .primary-btn:active { transform: scale(0.98); }
+        .tab-btn { display: inline-block; padding: 0.25rem 0.75rem; font-size: 0.875rem; border-bottom-width: 2px; border-color: transparent; cursor: pointer; text-decoration: none; color: inherit; }
+        .tab-btn:hover { border-color: #9ca3af; }
+        .tab-btn.active { border-color: #3b82f6; color: #3b82f6; font-weight: 700; }
+        .card { background-color: #f9fafb; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); }
+    </style>
 </head>
 <body>
-    <div layout:fragment="page-title">
-        <div>
-            <h4 class="mb-0">Dashboard</h4>
-            <small class="text-muted">Welcome back! Here's what's happening today.</small>
+
+<div class="app-container">
+    <nav id="navbar" class="p-4 border-b border-gray-100 flex justify-between items-center rounded-t-xl bg-gray-50">
+        <h1 class="text-2xl font-bold text-gray-800">Laundry Hub</h1>
+        <div class="flex space-x-4 items-center">
+            <div id="nav-tabs" class="space-x-2">
+                <button data-target="dashboard-view" class="tab-btn active">Dashboard</button>
+                
+                <a th:if="${currentUser.role == 'STUDENT'}" 
+                   th:href="@{/student/{studentId}/booking(studentId=${currentUser.studentId})}" 
+                   class="tab-btn">Booking</a>
+                   
+                <a th:if="${currentUser.role == 'MANAGER'}" 
+                   th:href="@{/booking}" 
+                   class="tab-btn">Booking</a>
+                   
+                <button th:if="${currentUser.role == 'MANAGER'}" data-target="admin-view" id="nav-admin-link" class="tab-btn">Admin Panel</button>
+            </div>
+            <span id="user-info" class="text-sm text-gray-600 font-medium sm:inline"
+                  th:text="${currentUser.name} + ' (' + ${currentUser.role} + ')'">
+                User Name (Role)
+            </span>
+        </div>
+    </nav>
+
+    <div id="message-box" class="fixed top-5 right-5 z-50"></div>
+    
+    <div id="dashboard-view" class="view" style="display:block;">
+        <h2 class="text-3xl font-bold mb-6 text-gray-800">Welcome, <span id="user-display-name" th:text="${currentUser.name}">User</span></h2>
+
+        <div id="student-dashboard" th:if="${currentUser.role == 'STUDENT'}">
+            <h3 class="text-xl font-semibold mb-4 text-blue-600">Your Bookings</h3>
+            <div id="student-bookings" class="space-y-4">
+                <div th:if="${#lists.isEmpty(studentBookings)}">
+                    <p class="text-gray-500">No active bookings found. Ready to do some laundry?</p>
+                </div>
+                <div th:unless="${#lists.isEmpty(studentBookings)}" th:each="booking : ${studentBookings}" 
+                     class="card flex justify-between items-center">
+                    <div>
+                        <p class="font-bold" th:text="${booking.machine.name}">Washer 1</p>
+                        <p class="text-sm text-gray-600" th:text="'Time: ' + ${booking.startTime} + ' - ' + ${booking.endTime}">Time: 10:00 - 11:00</p>
+                    </div>
+                    <span class="text-sm font-semibold px-3 py-1 rounded-full"
+                          th:text="${booking.status}"
+                          th:classappend="${booking.status == 'CONFIRMED' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
+                        PENDING
+                    </span>
+                </div>
+            </div>
+
+            <h3 class="text-xl font-semibold mt-8 mb-4 text-blue-600">Quick Status Overview</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="dashboard-stats">
+                 <div class="card bg-blue-500 text-white"><p class="text-sm opacity-80">Total Machines</p><p class="text-3xl font-bold mt-1" th:text="${studentStats.totalMachines}">0</p></div>
+                 <div class="card bg-emerald-500 text-white"><p class="text-sm opacity-80">Machines Available</p><p class="text-3xl font-bold mt-1" th:text="${studentStats.availableMachines}">0</p></div>
+                 <div class="card bg-amber-500 text-white"><p class="text-sm opacity-80">Machines In Use</p><p class="text-3xl font-bold mt-1" th:text="${studentStats.inUseMachines}">0</p></div>
+            </div>
+            <p class="mt-6 text-center">
+                <a th:href="@{/student/{studentId}/booking(studentId=${currentUser.studentId})}" class="primary-btn">Go to Booking Page</a>
+            </p>
+        </div>
+
+        <div id="manager-dashboard" th:if="${currentUser.role == 'MANAGER'}">
+            <h3 class="text-xl font-semibold mb-4 text-orange-600">System Performance Metrics</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="manager-stats">
+                <div class="card bg-fuchsia-600 text-white"><p class="text-sm opacity-80">Washers Available</p><p class="text-3xl font-bold mt-1" th:text="${managerStats.availableWashers} + ' / ' + ${managerStats.totalWashers}">0 / 0</p></div>
+                <div class="card bg-purple-600 text-white"><p class="text-sm opacity-80">Dryers Available</p><p class="text-3xl font-bold mt-1" th:text="${managerStats.availableDryers} + ' / ' + ${managerStats.totalDryers}">0 / 0</p></div>
+                <div class="card bg-red-600 text-white"><p class="text-sm opacity-80">Out of Service</p><p class="text-3xl font-bold mt-1" th:text="${managerStats.outOfServiceMachines}">0</p></div>
+            </div>
+
+            <h3 class="text-xl font-semibold mt-8 mb-4 text-orange-600">Recent System Activity</h3>
+            <div th:if="${#lists.isEmpty(recentActivities)}" class="card">
+                <p class="text-gray-500">No recent activity.</p>
+            </div>
+            <ul th:unless="${#lists.isEmpty(recentActivities)}" class="space-y-2 text-sm card">
+                <li th:each="activity : ${recentActivities}" class="border-b pb-2 last:border-b-0 last:pb-0"
+                    th:text="${activity.timestamp} + ': ' + ${activity.description}">
+                    Activity Log...
+                </li>
+            </ul>
         </div>
     </div>
-    
-    <div layout:fragment="content">
-        <!-- Statistics Cards -->
-        <div class="row g-4 mb-4">
-            <div class="col-xl-3 col-md-6">
-                <div class="stats-card">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <div class="text-muted mb-2" style="font-size: 0.85rem; font-weight: 600;">TODAY'S ORDERS</div>
-                            <h2 class="mb-0 fw-bold" th:text="${todayOrders} ?: 24">24</h2>
-                            <small class="text-success">
-                                <i class="fas fa-arrow-up"></i> 12% from yesterday
-                            </small>
+
+    <div id="admin-view" class="view" th:if="${currentUser.role == 'MANAGER'}">
+        <h2 class="text-3xl font-bold mb-6 text-gray-800">Manager Administration Panel</h2>
+         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 card">
+                <h3 class="text-xl font-semibold mb-4">Machine Status Control</h3>
+                <div id="admin-machine-list" class="space-y-4">
+                    <div th:each="machine : ${allMachines}" class="flex items-center justify-between p-3 border-b hover:bg-gray-100 rounded-lg transition duration-150">
+                        <div class="flex-grow">
+                            <p class="font-bold" th:text="${machine.name} + ' (' + ${machine.id} + ')'">Machine Name (ID)</p>
+                            <p class="text-sm" 
+                               th:text="'Current: ' + ${machine.status}"
+                               th:classappend="${machine.status == 'Available' ? 'text-emerald-600' : (machine.status == 'In Use' ? 'text-orange-600' : 'text-red-600')}">
+                               Current: Status
+                            </p>
                         </div>
-                        <div class="stats-icon blue">
-                            <i class="fas fa-shopping-bag"></i>
-                        </div>
+                        <select th:data-id="${machine.id}" class="machine-status-select border border-gray-300 rounded-md p-1 text-sm mr-4 w-40">
+                            <option th:each="status : ${allStatuses}"
+                                    th:value="${status}"
+                                    th:text="${status}"
+                                    th:selected="${status == machine.status}">
+                                Status
+                            </option>
+                        </select>
+                        <button th:data-id="${machine.id}" class="update-machine-btn primary-btn py-1 px-3 text-xs">Update</button>
                     </div>
                 </div>
             </div>
-            
-            <div class="col-xl-3 col-md-6">
-                <div class="stats-card">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <div class="text-muted mb-2" style="font-size: 0.85rem; font-weight: 600;">IN PROGRESS</div>
-                            <h2 class="mb-0 fw-bold" th:text="${inProgress} ?: 18">18</h2>
-                            <small class="text-warning">
-                                <i class="fas fa-clock"></i> 3 urgent
-                            </small>
-                        </div>
-                        <div class="stats-icon orange">
-                            <i class="fas fa-sync-alt"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-xl-3 col-md-6">
-                <div class="stats-card">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <div class="text-muted mb-2" style="font-size: 0.85rem; font-weight: 600;">READY FOR PICKUP</div>
-                            <h2 class="mb-0 fw-bold" th:text="${readyPickup} ?: 12">12</h2>
-                            <small class="text-info">
-                                <i class="fas fa-box"></i> Pending collection
-                            </small>
-                        </div>
-                        <div class="stats-icon purple">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-xl-3 col-md-6">
-                <div class="stats-card">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <div class="text-muted mb-2" style="font-size: 0.85rem; font-weight: 600;">TODAY'S REVENUE</div>
-                            <h2 class="mb-0 fw-bold" th:text="${'$' + (todayRevenue ?: 1248)}">$1,248</h2>
-                            <small class="text-success">
-                                <i class="fas fa-arrow-up"></i> 8% increase
-                            </small>
-                        </div>
-                        <div class="stats-icon green">
-                            <i class="fas fa-dollar-sign"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Charts Row -->
-        <div class="row g-4 mb-4">
-            <div class="col-xl-8">
-                <div class="chart-card">
-                    <h5 class="mb-3"><i class="fas fa-chart-line text-primary"></i> Weekly Revenue Overview</h5>
-                    <canvas id="revenueChart" height="80"></canvas>
-                </div>
-            </div>
-            
-            <div class="col-xl-4">
-                <div class="chart-card">
-                    <h5 class="mb-3"><i class="fas fa-chart-pie text-primary"></i> Service Distribution</h5>
-                    <canvas id="serviceChart" height="200"></canvas>
-                    <div class="mt-3">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span><i class="fas fa-circle text-primary"></i> Wash & Iron</span>
-                            <strong>45%</strong>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span><i class="fas fa-circle text-success"></i> Dry Clean</span>
-                            <strong>30%</strong>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <span><i class="fas fa-circle text-warning"></i> Iron Only</span>
-                            <strong>25%</strong>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Recent Orders Table -->
-        <div class="recent-orders-table">
-            <div class="table-header">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-list"></i> Recent Orders</h5>
-                    <a href="#" th:href="@{/orders}" class="btn btn-light btn-sm">View All</a>
-                </div>
-            </div>
-            
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Customer</th>
-                            <th>Service</th>
-                            <th>Items</th>
-                            <th>Status</th>
-                            <th>Pickup Date</th>
-                            <th>Amount</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="order : ${recentOrders}">
-                            <td>
-                                <strong th:text="${order.id}">#LDR-1001</strong>
-                            </td>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="user-avatar me-2" style="width: 32px; height: 32px; font-size: 0.75rem; background: linear-gradient(135deg, #667eea, #764ba2);">
-                                        <span th:text="${order.customerInitial}">JD</span>
-                                    </div>
-                                    <div>
-                                        <div th:text="${order.customerName}">John Doe</div>
-                                        <small class="text-muted" th:text="${order.phone}">+1 234-567-8900</small>
-                                    </div>
-                                </div>
-                            </td>
-                            <td th:text="${order.service}">Wash & Iron</td>
-                            <td th:text="${order.items + ' kg'}">5 kg</td>
-                            <td>
-                                <span class="badge-status" 
-                                      th:classappend="${order.status == 'Completed'} ? 'bg-success' : 
-                                                     ${order.status == 'In Progress'} ? 'bg-warning text-dark' : 
-                                                     ${order.status == 'Ready'} ? 'bg-info' : 'bg-secondary'"
-                                      th:text="${order.status}">
-                                    In Progress
-                                </span>
-                            </td>
-                            <td th:text="${#temporals.format(order.pickupDate, 'MMM dd, yyyy')}">Oct 29, 2025</td>
-                            <td>
-                                <strong th:text="${'$' + order.amount}">$45.00</strong>
-                            </td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary" title="View Details">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <!-- Sample static data if no orders -->
-                        <tr th:if="${#lists.isEmpty(recentOrders)}">
-                            <td><strong>#LDR-1001</strong></td>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="user-avatar me-2" style="width: 32px; height: 32px; font-size: 0.75rem; background: linear-gradient(135deg, #667eea, #764ba2);">
-                                        JD
-                                    </div>
-                                    <div>
-                                        <div>John Doe</div>
-                                        <small class="text-muted">+1 234-567-8900</small>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>Wash & Iron</td>
-                            <td>5 kg</td>
-                            <td><span class="badge-status bg-warning text-dark">In Progress</span></td>
-                            <td>Oct 29, 2025</td>
-                            <td><strong>$45.00</strong></td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr th:if="${#lists.isEmpty(recentOrders)}">
-                            <td><strong>#LDR-1002</strong></td>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="user-avatar me-2" style="width: 32px; height: 32px; font-size: 0.75rem; background: linear-gradient(135deg, #11998e, #38ef7d);">
-                                        SA
-                                    </div>
-                                    <div>
-                                        <div>Sarah Anderson</div>
-                                        <small class="text-muted">+1 234-567-8901</small>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>Dry Clean</td>
-                            <td>3 items</td>
-                            <td><span class="badge-status bg-info">Ready</span></td>
-                            <td>Oct 28, 2025</td>
-                            <td><strong>$75.00</strong></td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr th:if="${#lists.isEmpty(recentOrders)}">
-                            <td><strong>#LDR-1003</strong></td>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="user-avatar me-2" style="width: 32px; height: 32px; font-size: 0.75rem; background: linear-gradient(135deg, #f093fb, #f5576c);">
-                                        MJ
-                                    </div>
-                                    <div>
-                                        <div>Michael Johnson</div>
-                                        <small class="text-muted">+1 234-567-8902</small>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>Iron Only</td>
-                            <td>8 items</td>
-                            <td><span class="badge-status bg-success">Completed</span></td>
-                            <td>Oct 27, 2025</td>
-                            <td><strong>$25.00</strong></td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+
+            <div class="card">
+                <h3 class="text-xl font-semibold mb-4">User Management Summary</h3>
+                <ul id="admin-user-summary" class="space-y-3">
+                     <li th:each="user : ${allUsers}" class="flex justify-between items-center border-b pb-2">
+                        <span class="font-medium" th:text="${user.name}">User Name</span>
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full" 
+                              th:text="${user.role}"
+                              th:classappend="${user.role == 'MANAGER' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}">
+                            Role
+                        </span>
+                        <span class="text-xs text-gray-500" th:text="${user.id}">User ID</span>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
-    
-    <th:block layout:fragment="extra-scripts">
-        <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-        <script>
-            // Revenue Chart
-            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-            new Chart(revenueCtx, {
-                type: 'line',
-                data: {
-                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                    datasets: [{
-                        label: 'Revenue ($)',
-                        data: [1200, 1900, 1500, 2100, 1800, 2400, 2200],
-                        borderColor: '#667eea',
-                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        y: { beginAtZero: true }
-                    }
+</div>
+
+<script>
+    function showMessage(message, type = 'info') {
+        const baseClass = "p-4 mb-2 rounded-lg shadow-lg text-white font-semibold transition-opacity duration-300";
+        let colorClass = type === 'success' ? 'bg-emerald-500' : (type === 'error' ? 'bg-red-500' : 'bg-blue-500');
+        const $msg = $(`<div class="${baseClass} ${colorClass}">${message}</div>`);
+        $('#message-box').append($msg);
+        $msg.fadeIn(300).delay(3000).fadeOut(500, function() { $(this).remove(); });
+    }
+
+    function showView(viewId) {
+        $('.view').hide();
+        $(`#${viewId}`).show();
+        
+        $('#nav-tabs .tab-btn').removeClass('active');
+        $(`#nav-tabs button.tab-btn[data-target="${viewId}"]`).addClass('active');
+    }
+
+    $(document).on('click', '.update-machine-btn', function() {
+        const $btn = $(this);
+        const machineId = $btn.data('id');
+        
+        const $select = $(`.machine-status-select[data-id="${machineId}"]`);
+        const newStatus = $select.val();
+
+        if (!machineId) return;
+
+        $btn.text('Saving...').prop('disabled', true);
+
+        const token = $("meta[name='_csrf']").attr("content");
+        const header = $("meta[name='_csrf_header']_").attr("content");
+
+        $.ajax({
+            type: 'POST',
+            url: '/api/admin/machines/status', 
+            contentType: 'application/json',
+            data: JSON.stringify({
+                machineId: machineId,
+                newStatus: newStatus
+            }),
+            dataType: 'json',
+            beforeSend: function(xhr) {
+                if (header && token) {
+                    xhr.setRequestHeader(header, token);
                 }
-            });
-            
-            // Service Distribution Chart
-            const serviceCtx = document.getElementById('serviceChart').getContext('2d');
-            new Chart(serviceCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Wash & Iron', 'Dry Clean', 'Iron Only'],
-                    datasets: [{
-                        data: [45, 30, 25],
-                        backgroundColor: ['#667eea', '#11998e', '#f5576c']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    }
+            },
+            success: function(response) {
+                const returnedStatus = response.newStatus || newStatus; 
+                
+                showMessage(`${response.name} status updated to: ${returnedStatus}`, 'info');
+                
+                const $statusText = $btn.closest('.flex').find('p.text-sm');
+                $statusText.text('Current: ' + returnedStatus);
+                
+                $statusText.removeClass('text-emerald-600 text-orange-600 text-red-600');
+                
+                if (returnedStatus === 'Available') {
+                    $statusText.addClass('text-emerald-600');
+                } else if (returnedStatus === 'In Use') {
+                    $statusText.addClass('text-orange-600');
+                } else {
+                    $statusText.addClass('text-red-600');
                 }
-            });
-        </script>
-    </th:block>
+            },
+            error: function(xhr) {
+                const errorMsg = xhr.responseJSON ? xhr.responseJSON.message : 'Update failed.';
+                showMessage(errorMsg, 'error');
+            },
+            complete: function() {
+                $btn.text('Update').prop('disabled', false);
+            }
+        });
+    });
+
+    $(document).ready(function() {
+        $(document).on('click', '#nav-tabs button.tab-btn', function() {
+            const target = $(this).data('target');
+            showView(target);
+        });
+        
+        // Ensure the Dashboard button is active by default
+        $('#nav-tabs button.tab-btn[data-target="dashboard-view"]').addClass('active');
+    });
+
+</script>
 </body>
 </html>
