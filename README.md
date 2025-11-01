@@ -1,15 +1,14 @@
-TO DO THIS WEEK(BOOKING AND TIMER PAGE)***(KEEP THE COLOR CONSISTENT FROM THE LOGIN PAGE)**:
+TO DO THIS WEEK(TIMER PAGE,MACHINE DESCRIPTION PAGE and INTERACTIVITY)***(KEEP THE COLOR CONSISTENT FROM THE LOGIN PAGE)**:
 
-BOOKING PAGE will be in columns(as shown in wireframe.png with 3 hours interval for each column) 
-When the column booking is clicked, it takes you to confirm and fill form(Automated fill if possible from username)
-<img width="609" height="374" alt="image" src="https://github.com/user-attachments/assets/15c66020-41d7-4611-af02-f0077d0ce2c6" />
+CRATE A MACHINE PAGE WHEN THE MACHINE IS CLICKED YOU CAN SEE ITS RATING AND DESCRIPTION MODEL AND PRICE ETC
 
 After confirming the fill ---> Timer Page  (KEEP THE COLOR CONSISTENT FROM THE LOGIN PAGE)**
 
 <img width="494" height="243" alt="image" src="https://github.com/user-attachments/assets/2b2aeede-886d-4594-9432-06c422fe4d14" />
 
 
-Tmer Page:
+
+Tmer Page(IN DASHBOARD.HTML:
 clock icon with countdown (15 mins) middle of the screen just like login(include in the dashboard or not, YOUR CHOICE)
 Admin will have to approve the timer so it can complete and move forward.
 
@@ -19,6 +18,10 @@ The data will then be stored in a new database for the queue after approved by a
 
 
 After confirming, show and display your booked schedule in the dashboard.
+
+SYSTEM INTERACTION BETWEEN MANAGER,REGISTER USER AND BOOK MACHINE!
+
+
 
 
 
@@ -68,6 +71,7 @@ Admin The money is given Editing Page for Washing Machine Editing Page for Stude
 Database :  Booking Payment Confirmed Students Rating Registered Student
 
 FRONTEND CODING: AJAX/THYMELEAF/REACTJS
+
 
 
 
