@@ -1,6 +1,6 @@
 package controller;
 
-import java.time.LocalDateTime;
+import java.time.LocalDateTime; // (ต้องมี Import นี้)
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,35 +32,64 @@ public class BookingController {
     @Autowired
     private BookingService bookingService;
 
-    // Get all bookings
+    // (เมธอดอื่นๆ ... getAllBookings, getBookingById, ฯลฯ ... ไม่ต้องแก้ไข)
+    // ...
+    // ...
+
+    // --- ⬇️⬇️⬇️ นี่คือเมธอดที่ต้องแก้ไข ⬇️⬇️⬇️ ---
+    // Get bookings by date range
+    @GetMapping("/date-range")
+    public ResponseEntity<List<Booking>> getBookingsByDateRange(
+            @RequestParam String startDate, // 1. เปลี่ยนจาก LocalDateTime เป็น String
+            @RequestParam String endDate) {   // 2. เปลี่ยนจาก LocalDateTime เป็น String
+        
+        try {
+            // 3. แปลง String เป็น LocalDateTime ด้วยตัวเอง
+            LocalDateTime start = LocalDateTime.parse(startDate);
+            LocalDateTime end = LocalDateTime.parse(endDate);
+
+            // 4. เรียกใช้ Service ด้วยข้อมูลที่แปลงแล้ว
+            List<Booking> bookings = bookingService.getBookingsByDateRange(start, end);
+            return ResponseEntity.ok(bookings);
+            
+        } catch (Exception e) {
+            // (ถ้าแปลงค่าพลาด หรือมีปัญหาอื่น)
+            e.printStackTrace(); // (ดู Error ใน Console)
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    // --- ⬆️⬆️⬆️ จบส่วนที่แก้ไข ⬆️⬆️⬆️ ---
+
+
+    // (เมธอดอื่นๆ ... startBooking, completeBooking, ฯลฯ ... ไม่ต้องแก้ไข)
+    // ...
+    // ...
+
+    // (ส่วนที่เหลือของไฟล์)
     @GetMapping
     public ResponseEntity<List<Booking>> getAllBookings() {
         List<Booking> bookings = bookingService.getAllBookings();
         return ResponseEntity.ok(bookings);
     }
 
-    // Get booking by ID
     @GetMapping("/{id}")
     public ResponseEntity<Booking> getBookingById(@PathVariable Long id) {
         Optional<Booking> booking = bookingService.getBookingById(id);
         return booking.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Get bookings by user ID
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Booking>> getBookingsByUserId(@PathVariable Long userId) {
         List<Booking> bookings = bookingService.getBookingsByUserId(userId);
         return ResponseEntity.ok(bookings);
     }
 
-    // Get bookings by machine ID
     @GetMapping("/machine/{machineId}")
     public ResponseEntity<List<Booking>> getBookingsByMachineId(@PathVariable Long machineId) {
         List<Booking> bookings = bookingService.getBookingsByMachineId(machineId);
         return ResponseEntity.ok(bookings);
     }
 
-    // Get bookings by status
     @GetMapping("/status/{status}")
     public ResponseEntity<List<Booking>> getBookingsByStatus(@PathVariable String status) {
         try {
@@ -72,7 +101,6 @@ public class BookingController {
         }
     }
 
-    // Get booking statistics
     @GetMapping("/stats/total")
     public ResponseEntity<Long> getTotalBookings() {
         return ResponseEntity.ok(bookingService.getTotalBookings());
@@ -89,14 +117,12 @@ public class BookingController {
         }
     }
 
-    // Create new booking
     @PostMapping
     public ResponseEntity<Booking> createBooking(@RequestBody Booking booking) {
         Booking createdBooking = bookingService.createBooking(booking);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdBooking);
     }
 
-    // Update booking
     @PutMapping("/{id}")
     public ResponseEntity<Booking> updateBooking(@PathVariable Long id, @RequestBody Booking bookingDetails) {
         Booking updatedBooking = bookingService.updateBooking(id, bookingDetails);
@@ -106,7 +132,6 @@ public class BookingController {
         return ResponseEntity.notFound().build();
     }
 
-    // Delete booking
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBooking(@PathVariable Long id) {
         if (bookingService.deleteBooking(id)) {
@@ -114,17 +139,7 @@ public class BookingController {
         }
         return ResponseEntity.notFound().build();
     }
-
-    // Get bookings by date range
-    @GetMapping("/date-range")
-    public ResponseEntity<List<Booking>> getBookingsByDateRange(
-            @RequestParam LocalDateTime startDate,
-            @RequestParam LocalDateTime endDate) {
-        List<Booking> bookings = bookingService.getBookingsByDateRange(startDate, endDate);
-        return ResponseEntity.ok(bookings);
-    }
-
-    // Start a booking (mark as in progress)
+ 
     @PostMapping("/{id}/start")
     public ResponseEntity<?> startBooking(@PathVariable Long id) {
         try {
@@ -138,7 +153,6 @@ public class BookingController {
         }
     }
 
-    // Complete a booking (mark as completed)
     @PostMapping("/{id}/complete")
     public ResponseEntity<?> completeBooking(@PathVariable Long id) {
         try {
@@ -152,40 +166,28 @@ public class BookingController {
         }
     }
 
-    // Get completed bookings for a user that can be rated
     @GetMapping("/user/{userId}/completed")
     public ResponseEntity<List<Booking>> getCompletedBookingsForRating(@PathVariable Long userId) {
         List<Booking> bookings = bookingService.getCompletedBookingsForRating(userId);
         return ResponseEntity.ok(bookings);
     }
 
-    // Get all completed bookings
     @GetMapping("/completed")
     public ResponseEntity<List<Booking>> getCompletedBookings() {
         List<Booking> bookings = bookingService.getCompletedBookings();
         return ResponseEntity.ok(bookings);
     }
 
-    // Get all in-progress bookings
     @GetMapping("/in-progress")
     public ResponseEntity<List<Booking>> getInProgressBookings() {
         List<Booking> bookings = bookingService.getInProgressBookings();
         return ResponseEntity.ok(bookings);
     }
 
-    // Helper method to create error response
     private Map<String, String> createErrorResponse(String message, String code) {
         Map<String, String> error = new HashMap<>();
         error.put("error", message);
         error.put("code", code);
         return error;
-    }//
-
-
-
-@GetMapping("/timer")
-    public String showTimerPage() {
-        // "timer" คือชื่อไฟล์ timer.html ที่อยู่ใน /resources/templates
-        return "timer"; 
     }
 }

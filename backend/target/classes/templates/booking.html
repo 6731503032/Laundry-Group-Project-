@@ -1,246 +1,454 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Campus Laundry System - Booking</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #4f769c; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
-        .app-container { max-width: 1000px; width: 95%; margin: 20px auto; background: white; border-radius: 1rem; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); }
-        .view { display: none; padding: 2rem; }
-        .primary-btn { background-color: #3b82f6; color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; transition: background-color 0.3s, transform 0.1s; }
-        .primary-btn:hover { background-color: #2563eb; }
-        .primary-btn:active { transform: scale(0.98); }
-        .secondary-btn { background-color: #e5e7eb; color: #374151; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; transition: background-color 0.3s; }
-        .secondary-btn:hover { background-color: #d1d5db; }
-        .tab-btn { display: inline-block; padding: 0.25rem 0.75rem; font-size: 0.875rem; border-bottom-width: 2px; border-color: transparent; text-decoration: none; color: inherit; }
-        .tab-btn:hover { border-color: #9ca3af; }
-        .tab-btn.active { border-color: #3b82f6; color: #3b82f6; font-weight: 700; }
-        .card { background-color: #f9fafb; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); }
-        .slot-button { background-color: #ffffff; border: 1px solid #d1d5db; color: #374151; padding: 0.5rem; border-radius: 0.375rem; font-weight: 600; font-size: 0.875rem; text-align: center; cursor: pointer; transition: all 0.2s; }
-        .slot-button:hover { background-color: #eff6ff; border-color: #3b82f6; color: #2563eb; }
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #e7f5ff;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .app-container {
+        max-width: 1000px;
+        width: 95%;
+        margin: 20px auto;
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      }
+      .view {
+        display: none;
+        padding: 2rem;
+      }
+      .primary-btn {
+        background-color: #3b82f6;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        transition: background-color 0.3s, transform 0.1s;
+      }
+      .primary-btn:hover {
+        background-color: #2563eb;
+      }
+      .primary-btn:active {
+        transform: scale(0.98);
+      }
+      .secondary-btn {
+        background-color: #e5e7eb;
+        color: #374151;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        transition: background-color 0.3s;
+      }
+      .secondary-btn:hover {
+        background-color: #d1d5db;
+      }
+      .tab-btn {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        font-size: 0.875rem;
+        border-bottom-width: 2px;
+        border-color: transparent;
+        text-decoration: none;
+        color: inherit;
+      }
+      .tab-btn:hover {
+        border-color: #9ca3af;
+      }
+      .tab-btn.active {
+        border-color: #3b82f6;
+        color: #3b82f6;
+        font-weight: 700;
+      }
+      .card {
+        background-color: #f9fafb;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      }
+      .slot-button {
+        background-color: #ffffff;
+        border: 1px solid #d1d5db;
+        color: #374151;
+        padding: 0.5rem;
+        border-radius: 0.375rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .slot-button:hover {
+        background-color: #eff6ff;
+        border-color: #3b82f6;
+        color: #2563eb;
+      }
+      
+      /* --- CSS สำหรับช่องที่ถูกจอง --- */
+      .slot-button-taken {
+        background-color: #f3f4f6; /* gray-100 */
+        border: 1px solid #e5e7eb; /* gray-200 */
+        color: #9ca3af; /* gray-400 */
+        padding: 0.5rem;
+        border-radius: 0.375rem;
+        font-weight: 500;
+        font-size: 0.875rem;
+        text-align: center;
+        cursor: not-allowed;
+        text-decoration: line-through; /* ขีดฆ่า */
+      }
     </style>
-</head>
-<body>
-
-<div class="app-container">
-    <nav id="navbar" class="p-4 border-b border-gray-100 flex justify-between items-center rounded-t-xl bg-gray-50">
+  </head>
+  <body>
+    <div class="app-container">
+      <nav
+        id="navbar"
+        class="p-4 border-b border-gray-100 flex justify-between items-center rounded-t-xl bg-gray-50"
+      >
         <h1 class="text-2xl font-bold text-gray-800">Laundry Hub</h1>
         <div class="flex space-x-4 items-center">
-            <div id="nav-tabs" class="space-x-2">
-                
-                <a th:href="@{/student/{id}/dashboard(id=${currentUser.studentId})}" class="tab-btn">Dashboard</a>
-                
-                <a href="#" id="nav-booking-link" class="tab-btn active">Booking</a>
-            </div>
-            <span id="user-info" class="text-sm text-gray-600 font-medium sm:inline"
-                  th:text="${currentUser.name} + ' (' + ${currentUser.role} + ')'">
-                  User Name (Role)
-            </span>
-        </div>
-    </nav>
+          <div id="nav-tabs" class="space-x-2">
+            <a
+              th:href="@{/student/{id}/dashboard(id=${currentUser.studentId})}"
+              class="tab-btn"
+              >Dashboard</a
+            >
 
-    <div id="message-box" class="fixed top-5 right-5 z-50"></div>
-    
-    <div id="booking-view" class="view" style="display: block;">
-        <h2 class="text-3xl font-bold mb-6 text-gray-800">Select a Machine and Time</h2>
+            <a href="#" id="nav-booking-link" class="tab-btn active">Booking</a>
+          </div>
+          <span
+            id="user-info"
+            class="text-sm text-gray-600 font-medium sm:inline"
+            th:text="${currentUser.name} + ' (' + ${currentUser.role} + ')'"
+          >
+            User Name (Role)
+          </span>
+        </div>
+      </nav>
+
+      <div id="message-box" class="fixed top-5 right-5 z-50"></div>
+
+      <div id="booking-view" class="view" style="display: block">
+        <h2 class="text-3xl font-bold mb-6 text-gray-800">
+          Select an Available Machine and Time
+        </h2>
+        
         <div id="machine-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <p>Loading machines...</p>
+          <p>Loading available machines and schedule...</p>
         </div>
-    </div>
+      </div>
 
-    <div id="confirm-view" class="view">
-        <h2 class="text-3xl font-bold mb-6 text-gray-800">Confirm Your Booking</h2>
+      <div id="confirm-view" class="view">
+        <h2 class="text-3xl font-bold mb-6 text-gray-800">
+          Confirm Your Booking
+        </h2>
         <div class="card max-w-lg mx-auto">
-             <p class="text-lg text-gray-600 mb-4">Please confirm the details below:</p>
-            <ul class="space-y-3 mb-6">
-                <li class="flex justify-between items-center">
-                    <span class="font-medium text-gray-500">User:</span>
-                    <span id="confirm-user" class="text-lg font-semibold text-gray-800"></span>
-                </li>
-                <li class="flex justify-between items-center">
-                    <span class="font-medium text-gray-500">Machine:</span>
-                    <span id="confirm-machine" class="text-lg font-semibold text-gray-800"></span>
-                </li>
-                <li class="flex justify-between items-center">
-                    <span class="font-medium text-gray-500">Time Slot:</span>
-                    <span id="confirm-slot" class="text-lg font-semibold text-gray-800"></span>
-                </li>
-            </ul>
-            <div class="flex justify-between space-x-4">
-                <button id="cancel-booking-btn" class="w-full text-center py-3 rounded-lg secondary-btn">Cancel</button>
-                <button id="submit-booking-btn" class="w-full text-center py-3 rounded-lg primary-btn">Confirm & Request Approval</button>
-            </div>
+          <p class="text-lg text-gray-600 mb-4">
+            Please confirm the details below:
+          </p>
+          <ul class="space-y-3 mb-6">
+            <li class="flex justify-between items-center">
+              <span class="font-medium text-gray-500">User:</span>
+              <span
+                id="confirm-user"
+                class="text-lg font-semibold text-gray-800"
+              ></span>
+            </li>
+            <li class="flex justify-between items-center">
+              <span class="font-medium text-gray-500">Machine:</span>
+              <span
+                id="confirm-machine"
+                class="text-lg font-semibold text-gray-800"
+              ></span>
+            </li>
+            <li class="flex justify-between items-center">
+              <span class="font-medium text-gray-500">Time Slot:</span>
+              <span
+                id="confirm-slot"
+                class="text-lg font-semibold text-gray-800"
+              ></span>
+            </li>
+          </ul>
+          <div class="flex justify-between space-x-4">
+            <button
+              id="cancel-booking-btn"
+              class="w-full text-center py-3 rounded-lg secondary-btn"
+            >
+              Cancel
+            </button>
+            <button
+              id="submit-booking-btn"
+              class="w-full text-center py-3 rounded-lg primary-btn"
+            >
+              Confirm & Request Approval
+            </button>
+          </div>
         </div>
+      </div>
     </div>
 
-</div>
+    <script th:inline="javascript">
+      const currentUserName = /*[[${currentUser.name}]]*/ "User";
+      const currentUserId = /*[[${currentUser.id}]]*/ null;
+    </script>
 
-<script th:inline="javascript">
-    /*
-     * This passes the real user's name (from the controller)
-     * to your JavaScript 'currentUserName' variable.
-     */
-    const currentUserName = /*[[${currentUser.name}]]*/ 'User';
-    
-    // We also need the user's ID to create the booking
-    const currentUserId = /*[[${currentUser.id}]]*/ null;
-</script>
 
-<script>
-    // --- GLOBAL DATA & STATE ---
-    let pendingBooking = null;
+    <script>
+      // --- GLOBAL DATA & STATE ---
+      let pendingBooking = null;
+      // (รายชื่อเวลาที่คุณต้องการให้แสดง)
+      const timeSlots = [
+          "08:00", "09:00", "10:00", "11:00",
+          "12:00", "13:00", "14:00", "15:00", "16:00"
+      ];
 
-    // --- UTILITIES ---
-    function showMessage(message, type = 'info') {
-        const baseClass = "p-4 mb-2 rounded-lg shadow-lg text-white font-semibold transition-opacity duration-300";
-        let colorClass = type === 'success' ? 'bg-emerald-500' : (type === 'error' ? 'bg-red-500' : 'bg-blue-500');
-        const $msg = $(`<div class="${baseClass} ${colorClass}">${message}</div>`);
-        $('#message-box').append($msg);
-        $msg.fadeIn(300).delay(3000).fadeOut(500, function() { $(this).remove(); });
-    }
 
-    function showView(viewId) {
-        $('.view').hide();
+      // --- UTILITIES ---
+      function showMessage(message, type = "info") {
+        const baseClass =
+          "p-4 mb-2 rounded-lg shadow-lg text-white font-semibold transition-opacity duration-300";
+        let colorClass =
+          type === "success"
+            ? "bg-emerald-500"
+            : type === "error"
+            ? "bg-red-500"
+            : "bg-blue-500";
+        const $msg = $(
+          `<div class="${baseClass} ${colorClass}">${message}</div>`
+        );
+        $("#message-box").append($msg);
+        $msg
+          .fadeIn(300)
+          .delay(3000)
+          .fadeOut(500, function () {
+            $(this).remove();
+          });
+      }
+
+      function showView(viewId) {
+        $(".view").hide();
         $(`#${viewId}`).show();
-    }
+      }
 
-    // --- RENDER MACHINES AND SLOTS ---
-    function renderMachineSlots() {
-        const $list = $('#machine-list').empty();
-        
-        // TODO: This should be loaded from your API in the future
-        const machines = [
-            { id: 1, name: 'Washer 1' },
-            { id: 2, name: 'Washer 2' },
-            { id: 3, name: 'Washer 3' },
-            { id: 4, name: 'Washer 4' }
-        ];
-        
-        const timeSlots = [
-            '09:00', '10:00', '11:00', '12:00', 
-            '13:00', '14:00', '15:00', '16:00'
-        ];
+      // (ฟังก์ชันสำหรับดึงวันที่ปัจจุบันในรูปแบบ "YYYY-MM-DD")
+      function getTodaysDateString() {
+          const today = new Date();
+          const yyyy = today.getFullYear();
+          const mm = String(today.getMonth() + 1).padStart(2, '0');
+          const dd = String(today.getDate()).padStart(2, '0');
+          return `${yyyy}-${mm}-${dd}`; // e.g., "2025-11-03"
+      }
 
-        machines.forEach(machine => {
-            let slotButtonsHTML = '';
-            timeSlots.forEach(slotTime => {
-                slotButtonsHTML += `
-                    <button class="slot-button" 
-                            data-machine-id="${machine.id}"
-                            data-machine-name="${machine.name}" 
-                            data-slot-time="${slotTime}">
-                        ${slotTime}
-                    </button>
-                `;
+      // (ฟังก์ชันสำหรับดึงเครื่องที่ว่าง)
+      function fetchAvailableMachines() {
+          return $.ajax({
+              url: "/api/machines/available",
+              type: "GET",
+              dataType: "json"
+          });
+      }
+
+      // (ฟังก์ชันสำหรับดึง Booking ของวันนี้)
+      function fetchTodaysBookings(todayStr) {
+          const startDate = `${todayStr}T00:00:00`;
+          const endDate = `${todayStr}T23:59:59`;
+
+          return $.ajax({
+              url: "/api/bookings/date-range",
+              type: "GET",
+              data: {
+                  startDate: startDate,
+                  endDate: endDate
+              },
+              dataType: "json"
+          });
+      }
+
+
+      // --- RENDER MACHINES AND SLOTS (ฟังก์ชันที่แก้ไขใหม่) ---
+      function renderMachineSlots() {
+        const $list = $("#machine-list").empty().html('<p>Loading available machines and schedule...</p>');
+        const todayStr = getTodaysDateString(); // e.g., "2025-11-03"
+        
+        // 1. โหลดข้อมูล 2 ส่วนพร้อมกัน (เครื่อง และ การจอง)
+        Promise.all([
+            fetchAvailableMachines(),
+            fetchTodaysBookings(todayStr)
+        ]).then(([machines, bookings]) => {
+            
+            // 2. สร้าง "ตาราง lookup" ของช่องที่ถูกจองไปแล้ว
+            // Key format: "machineId-ISODateTimeString"
+            // e.g., "1-2025-11-03T08:00:00"
+            const bookingLookup = new Set();
+            bookings.forEach(booking => {
+                // (เรา JOIN FETCH มาแล้ว ข้อมูล machine.id จึงพร้อมใช้งาน)
+                const key = `${booking.machine.id}-${booking.bookingDate}`;
+                bookingLookup.add(key);
             });
 
-            const machineCardHTML = `
-                <div class="card">
-                    <h3 class="text-xl font-bold text-gray-800 mb-4">${machine.name}</h3>
-                    <div class="grid grid-cols-4 gap-2">
-                        ${slotButtonsHTML}
+            // 3. ตรวจสอบว่ามีเครื่องว่างหรือไม่
+            if (!machines || machines.length === 0) {
+                $list.html('<p class="text-gray-500">Sorry, no machines are available right now.</p>');
+                return;
+            }
+
+            // 4. ล้างหน้าจอและเริ่มวาดการ์ด
+            $list.empty(); 
+            
+            machines.forEach((machine) => {
+                let slotButtonsHTML = "";
+
+                timeSlots.forEach((slotTime) => {
+                    // 5. สร้าง Key ของช่องเวลานี้ เพื่อใช้เทียบกับตาราง lookup
+                    const isoSlotTime = `${todayStr}T${slotTime}:00`;
+                    const lookupKey = `${machine.id}-${isoSlotTime}`;
+                    
+                    // 6. (Logic หลัก) ตรวจสอบว่าช่องเวลานี้ถูกจองหรือยัง
+                    const isTaken = bookingLookup.has(lookupKey);
+
+                    if (isTaken) {
+                        // --- (แสดงปุ่มที่ "เต็มแล้ว" โดยใช้ Class ใหม่) ---
+                        slotButtonsHTML += `
+                            <button class="slot-button-taken" disabled>
+                                ${slotTime}
+                            </button>
+                        `;
+                    } else {
+                        // --- (แสดงปุ่มที่ "ว่าง" ตามปกติ) ---
+                        slotButtonsHTML += `
+                            <button class="slot-button" 
+                                    data-machine-id="${machine.id}"
+                                    data-machine-name="${machine.name}" 
+                                    data-slot-time="${slotTime}">
+                                ${slotTime}
+                            </button>
+                        `;
+                    }
+                });
+
+                const machineCardHTML = `
+                    <div class="card">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">${machine.name} (${machine.machineNumber})</h3>
+                        <div class="grid grid-cols-4 gap-2">
+                            ${slotButtonsHTML}
+                        </div>
                     </div>
-                </div>
-            `;
-            $list.append(machineCardHTML);
+                `;
+                $list.append(machineCardHTML);
+            });
+
+        }).catch((err) => {
+            // (กรณียิง API พลาด)
+            console.error("Failed to load booking data", err);
+            $list.html('<p class="text-red-500">Error loading machines schedule. Please try again later.</p>');
         });
-    }
-    
-    // --- BOOKING LOGIC ---
+      }
+      
+      
+      // --- (ส่วน Logic การจอง ไม่มีการเปลี่ยนแปลง) ---
 
-    // 1. Handle click on a time slot button
-    $('#machine-list').on('click', '.slot-button', function() {
-        const machineId = $(this).data('machine-id');
-        const machineName = $(this).data('machine-name');
-        const startTime = $(this).data('slot-time');
-        
-        const startHour = parseInt(startTime.split(':')[0]);
-        const endTime = `${String(startHour + 1).padStart(2, '0')}:00`;
-        
+      // 1. Handle click on a time slot button
+      // (เราป้องกันไม่ให้คลิกปุ่มที่ 'disabled' อยู่แล้วโดยอัตโนมัติ)
+      $("#machine-list").on("click", ".slot-button", function () {
+        const machineId = $(this).data("machine-id");
+        const machineName = $(this).data("machine-name");
+        const startTime = $(this).data("slot-time");
+
+        const startHour = parseInt(startTime.split(":")[0]);
+        const endTime = `${String(startHour + 1).padStart(2, "0")}:00`;
+
         pendingBooking = {
-            userId: currentUserId, // The real user's ID
-            machineId: machineId, // The real machine's ID
-            machineName: machineName, // Name for display
-            user: currentUserName, // Name for display
-            startTime: startTime,
-            endTime: endTime,
-            slot: `${startTime} - ${endTime}`
+          userId: currentUserId,
+          machineId: machineId,
+          machineName: machineName,
+          user: currentUserName,
+          startTime: startTime,
+          endTime: endTime,
+          slot: `${startTime} - ${endTime}`,
         };
 
-        $('#confirm-user').text(pendingBooking.user);
-        $('#confirm-machine').text(pendingBooking.machineName);
-        $('#confirm-slot').text(pendingBooking.slot);
-        
-        showView('confirm-view');
-    });
+        $("#confirm-user").text(pendingBooking.user);
+        $("#confirm-machine").text(pendingBooking.machineName);
+        $("#confirm-slot").text(pendingBooking.slot);
 
-    // 2. Handle Cancel button
-    $('#cancel-booking-btn').on('click', function() {
+        showView("confirm-view");
+      });
+
+      // 2. Handle Cancel button
+      $("#cancel-booking-btn").on("click", function () {
         pendingBooking = null;
-        showView('booking-view');
-    });
+        showView("booking-view");
+      });
 
-    // 3. Handle Submit button -> Call the API
-    $('#submit-booking-btn').on('click', function() {
+      // 3. Handle Submit button -> Call the API
+      $("#submit-booking-btn").on("click", function () {
         if (!pendingBooking) return;
-        
-        // This is the data object to send to your API
-        const bookingData = {
-            user: { id: pendingBooking.userId }, // Send as a nested object
-            machine: { id: pendingBooking.machineId }, // Send as a nested object
-            startTime: pendingBooking.startTime, // TODO: This needs to be a full LocalDateTime
-            endTime: pendingBooking.endTime, // TODO: This needs to be a full LocalDateTime
-            status: 'PENDING' // Set initial status
-        };
 
-        // TODO: You must convert startTime and endTime to full LocalDateTime
-        // objects before this AJAX call will work with your API.
-        // For now, I will comment out the API call.
+        const today = getTodaysDateString();
+        const bookingDateTime = `${today}T${pendingBooking.startTime}:00`;
+
+        const bookingData = {
+          user: { id: currentUserId }, 
+          machine: { id: pendingBooking.machineId }, 
+          bookingDate: bookingDateTime, 
+          amount: 50.0, 
+          service: "WASH"
+        };
         
-        /*
-        // --- AJAX Call to your API ---
         $.ajax({
-            type: 'POST',
-            url: '/api/bookings', // The API endpoint from BookingController
-            contentType: 'application/json',
+            type: "POST",
+            url: "/api/bookings",
+            contentType: "application/json",
             data: JSON.stringify(bookingData),
-            success: function(createdBooking) {
-                showMessage('Booking created! Awaiting approval.', 'success');
+            dataType: "json",
+            success: function(response) {
+                showMessage("Booking submitted successfully! Redirecting...", "success");
+                sessionStorage.setItem("pendingBooking", JSON.stringify(pendingBooking));
                 setTimeout(() => {
-                    // Redirect to dashboard, which will show the new PENDING booking
-                    window.location.href = `/student/${currentUserId}/dashboard`;
+                    window.location.href = "/timer";
                 }, 1500);
             },
             error: function(xhr) {
-                showMessage('Error creating booking: ' + (xhr.responseJSON?.error || 'Server error'), 'error');
+                let errorMsg = "An unknown error occurred.";
+                if (xhr.responseJSON && (xhr.responseJSON.error || xhr.responseJSON.message)) {
+                    errorMsg = xhr.responseJSON.error || xhr.responseJSON.message;
+                }
+                showMessage(errorMsg, "error"); 
+                
+                setTimeout(() => {
+                    showView("booking-view");
+                    // (สำคัญ) โหลดตารางเวลาใหม่
+                    renderMachineSlots();
+                }, 2000);
             }
         });
-        */
-        
-        // --- Placeholder for now ---
-        // Remove this once the AJAX call is working
-        showMessage('Booking submitted (placeholder)! Redirecting...', 'success');
-        console.log("Data to send to API:", JSON.stringify(bookingData));
-        setTimeout(() => {
-             // Get the studentId from the URL to build the redirect
-             const studentId = window.location.pathname.split('/')[2];
-             window.location.href = `/student/${studentId}/dashboard`;
-        }, 1500);
-    });
+      });
 
-    // --- INITIALIZATION ---
-    $(document).ready(function() {
-        if (currentUserId === null) {
-            showMessage('Error: Could not identify user.', 'error');
-            return;
+      // --- INITIALIZATION ---
+      $(document).ready(function () {
+        if (!currentUserId && currentUserName === "User") {
+          currentUserName = "Guest";
+          console.warn("Could not identify user. Proceeding as Guest.");
+        } else if (!currentUserId) {
+          console.warn("User ID is null, but name is present.");
         }
-        renderMachineSlots();
-    });
 
-</script>
-</body>
+        // เริ่มโหลดเครื่องและตารางเวลาทันที
+        renderMachineSlots();
+      });
+    </script>
+  </body>
 </html>

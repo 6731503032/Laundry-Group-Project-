@@ -39,20 +39,29 @@ public class MachineManagementService {
     /**
      * Get all available machines for browsing
      */
+    @Transactional(readOnly = true) // (แนะนำให้เพิ่ม)
     public List<Machine> getAvailableMachines() {
-        return machineRepository.findByStatus(AppConstants.STATUS_AVAILABLE);
+        // --- ⬇️⬇️⬇️ นี่คือส่วนที่แก้ไข ⬇️⬇️⬇️ ---
+        // (เปลี่ยนจาก findByStatus เป็น findByStatusWithUser)
+        return machineRepository.findByStatusWithUser(AppConstants.STATUS_AVAILABLE);
+        // --- ⬆️⬆️⬆️ จบส่วนที่แก้ไข ⬆️⬆️⬆️ ---
     }
 
     /**
      * Get all machines (for admin/manager list)
      */
+    @Transactional(readOnly = true) // (แนะนำให้เพิ่ม)
     public List<Machine> getAllMachines() {
+        // --- ⬇️⬇️⬇️ นี่คือส่วนที่แก้ไข ⬇️⬇️⬇️ ---
+        // (เราเรียก findAll() ซึ่งเรา Override ไว้ใน Repository แล้ว)
         return machineRepository.findAll();
+        // --- ⬆️⬆️⬆️ จบส่วนที่แก้ไข ⬆️⬆️⬆️ ---
     }
 
     /**
      * Get machine by ID
      */
+    @Transactional(readOnly = true) // (แนะนำให้เพิ่ม)
     public Optional<Machine> getMachineById(Long machineId) {
         return machineRepository.findById(machineId);
     }
@@ -61,6 +70,7 @@ public class MachineManagementService {
      * Get machine details with ratings and reviews
      * This is the main endpoint for machine detail page
      */
+    @Transactional(readOnly = true) // (แนะนำให้เพิ่ม)
     public MachineDetailDTO getMachineDetail(Long machineId) {
         Machine machine = machineRepository.findById(machineId)
             .orElseThrow(() -> new IllegalArgumentException("Machine not found with ID: " + machineId));
@@ -99,14 +109,17 @@ public class MachineManagementService {
     /**
      * Search machines with multiple criteria
      */
+    @Transactional(readOnly = true) // (แนะนำให้เพิ่ม)
     public List<Machine> searchMachines(String name, String location, String machineType,
-                                       Double minPrice, Double maxPrice, String status) {
+                                        Double minPrice, Double maxPrice, String status) {
+        // (เมธอดนี้จะเรียกใช้ Query ที่เราแก้ไขแล้วใน Repository)
         return machineRepository.searchMachines(name, location, machineType, minPrice, maxPrice, status);
     }
 
     /**
      * Get machines by location
      */
+    @Transactional(readOnly = true) // (แนะนำให้เพิ่ม)
     public List<Machine> getMachinesByLocation(String location) {
         return machineRepository.findByLocation(location);
     }
@@ -114,6 +127,7 @@ public class MachineManagementService {
     /**
      * Get machines by type
      */
+    @Transactional(readOnly = true) // (แนะนำให้เพิ่ม)
     public List<Machine> getMachinesByType(String type) {
         return machineRepository.findByMachineType(type);
     }
@@ -121,43 +135,39 @@ public class MachineManagementService {
     /**
      * Get machines in price range
      */
+    @Transactional(readOnly = true) // (แนะนำให้เพิ่ม)
     public List<Machine> getMachinesByPriceRange(Double minPrice, Double maxPrice) {
         return machineRepository.findByPriceRange(minPrice, maxPrice);
     }
 
     // ===== MANAGER OPERATIONS (Create, Update, Delete) =====
+    // (ส่วนที่เหลือของไฟล์นี้ไม่ต้องแก้ไข)
 
     /**
      * Create a new machine (Manager only)
      */
     public Machine createMachine(String machineNumber, String name, String machineType,
-                                String brand, String model, String capacity,
-                                String location, String description, String features,
-                                Double pricePerHour, Double pricePerDay) {
+                                 String brand, String model, String capacity,
+                                 String location, String description, String features,
+                                 Double pricePerHour, Double pricePerDay) {
         
         // Validation
         if (machineNumber == null || machineNumber.isEmpty()) {
             throw new IllegalArgumentException("Machine number cannot be empty");
         }
-
-        // Check if machine number already exists
         Machine existingMachine = machineRepository.findByMachineNumber(machineNumber);
         if (existingMachine != null) {
             throw new IllegalArgumentException("Machine number already exists: " + machineNumber);
         }
-
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("Machine name cannot be empty");
         }
-
         if (machineType == null || machineType.isEmpty()) {
             throw new IllegalArgumentException("Machine type cannot be empty");
         }
-
         if (pricePerHour == null || pricePerHour < 0) {
             throw new IllegalArgumentException("Price per hour must be non-negative");
         }
-
         if (pricePerDay == null || pricePerDay < 0) {
             throw new IllegalArgumentException("Price per day must be non-negative");
         }
@@ -184,9 +194,9 @@ public class MachineManagementService {
      * Update machine details (Manager only)
      */
     public Machine updateMachine(Long machineId, String name, String machineType,
-                                String brand, String model, String capacity,
-                                String location, String description, String features,
-                                Double pricePerHour, Double pricePerDay, String status) {
+                                 String brand, String model, String capacity,
+                                 String location, String description, String features,
+                                 Double pricePerHour, Double pricePerDay, String status) {
         
         Machine machine = machineRepository.findById(machineId)
             .orElseThrow(() -> new IllegalArgumentException("Machine not found with ID: " + machineId));
@@ -242,7 +252,6 @@ public class MachineManagementService {
 
         machine.setStatus(status);
 
-        // If setting to maintenance or out of service, release current user
         if (status.equals(AppConstants.STATUS_MAINTENANCE) || 
             status.equals(AppConstants.STATUS_OUT_OF_SERVICE)) {
             machine.setCurrentUser(null);
@@ -257,7 +266,7 @@ public class MachineManagementService {
      */
     public Machine updateMachinePricing(Long machineId, Double pricePerHour, Double pricePerDay) {
         Machine machine = machineRepository.findById(machineId)
-            .orElseThrow(() -> new IllegalArgumentException("Machine not found with ID: " + machineId));
+            .orElseThrow(() -> new IllegalArgumentException("Machine not found with ID: ".concat(machineId.toString())));
 
         if (pricePerHour != null && pricePerHour >= 0) {
             machine.setPricePerHour(pricePerHour);
@@ -276,7 +285,7 @@ public class MachineManagementService {
         Machine machine = machineRepository.findById(machineId)
             .orElseThrow(() -> new IllegalArgumentException("Machine not found with ID: " + machineId));
 
-        machineRepository.deleteById(machineId);
+        machineRepository.delete(machine);
     }
 
     /**
@@ -313,13 +322,15 @@ public class MachineManagementService {
     /**
      * Get machines in use
      */
+    @Transactional(readOnly = true) // (แนะนำให้เพิ่ม)
     public List<Machine> getInUseMachines() {
-        return machineRepository.findByStatus(AppConstants.STATUS_IN_USE);
+        return machineRepository.findByStatusWithUser(AppConstants.STATUS_IN_USE);
     }
 
     /**
      * Get machines by current user
      */
+    @Transactional(readOnly = true) // (แนะนำให้เพิ่ม)
     public List<Machine> getMachinesByCurrentUser(Long userId) {
         return machineRepository.findByCurrentUserId(userId);
     }

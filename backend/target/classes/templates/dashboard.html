@@ -10,33 +10,126 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0b3967; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
-        .app-container { max-width: 1000px; width: 95%; margin: 20px auto; background: white; border-radius: 1rem; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); }
-        .view { display: none; padding: 2rem; }
-        .primary-btn { background-color: #3b82f6; color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; transition: background-color 0.3s, transform 0.1s; }
-        .primary-btn:hover { background-color: #2563eb; }
-        .primary-btn:active { transform: scale(0.98); }
-        .tab-btn { display: inline-block; padding: 0.25rem 0.75rem; font-size: 0.875rem; border-bottom-width: 2px; border-color: transparent; cursor: pointer; text-decoration: none; color: inherit; }
-        .tab-btn:hover { border-color: #9ca3af; }
-        .tab-btn.active { border-color: #3b82f6; color: #3b82f6; font-weight: 700; }
-        .card { background-color: #f9fafb; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); }
+        /* (CSS ทั้งหมดเหมือนเดิม ไม่ต้องแก้ไข) */
+        body {
+            font-family: "Poppins", sans-serif;
+            background: #e7f5ff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 0;
+        }
+        .app-container {
+            max-width: 1000px;
+            width: 95%;
+            margin: 20px auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        .view {
+            display: none;
+            padding: 30px 40px;
+        }
+        .primary-btn {
+            padding: 14px;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 123, 255, 0.4);
+            filter: brightness(1.1);
+        }
+        .primary-btn:active {
+            transform: translateY(0);
+        }
+        .tab-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 16px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s;
+            font-weight: 500;
+            text-decoration: none;
+            border-bottom-width: 2px;
+            border-color: transparent;
+        }
+        .tab-btn:hover {
+             border-color: #9ca3af;
+             color: #333;
+        }
+        .tab-btn.active {
+            color: #007bff;
+            font-weight: 600;
+            border-color: #007bff;
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e0e0e0;
+        }
+        .update-machine-btn {
+             padding: 8px 16px;
+             font-size: 14px;
+             font-weight: 500;
+        }
+        .admin-slot-btn {
+            padding: 4px 8px;
+            font-size: 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .admin-btn-available {
+             background-color: #ecfdf5; color: #067647; border: 1px solid #a7f3d0;
+        }
+        .admin-btn-available:hover {
+            background-color: #d1fae5; color: #046c4e;
+        }
+        .admin-btn-taken {
+            background-color: #fffbeb; color: #b45309; border: 1px solid #fde68a;
+        }
+        .admin-btn-taken:hover {
+            background-color: #fef3c7; color: #92400e;
+        }
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    <nav id="navbar" class="p-4 border-b border-gray-100 flex justify-between items-center rounded-t-xl bg-gray-50">
+    <nav id="navbar" class="p-4 border-b border-gray-200 flex justify-between items-center rounded-t-xl bg-white">
         <h1 class="text-2xl font-bold text-gray-800">Laundry Hub</h1>
         <div class="flex space-x-4 items-center">
             <div id="nav-tabs" class="space-x-2">
                 <button data-target="dashboard-view" class="tab-btn active">Dashboard</button>
-                
                 <a th:if="${currentUser.role.toString() == 'STUDENT'}" 
                    th:href="@{/student/{studentId}/booking(studentId=${currentUser.studentId})}" 
                    class="tab-btn">Booking</a>
-                    
                 <button th:if="${currentUser.role.toString() == 'MANAGER'}" data-target="admin-view" id="nav-admin-link" class="tab-btn">Admin Panel</button>
             </div>
             <span id="user-info" class="text-sm text-gray-600 font-medium sm:inline"
@@ -52,7 +145,7 @@
         <h2 class="text-3xl font-bold mb-6 text-gray-800">Welcome, <span id="user-display-name" th:text="${currentUser.name}">User</span></h2>
 
         <div id="student-dashboard" th:if="${currentUser.role.toString() == 'STUDENT'}">
-            <h3 class="text-xl font-semibold mb-4 text-blue-600">Your Bookings</h3>
+            <h3 class="text-xl font-semibold mb-4 text-blue-800">Your Bookings</h3>
             <div id="student-bookings" class="space-y-4">
                 <div th:if="${#lists.isEmpty(studentBookings)}">
                     <p class="text-gray-500">No active bookings found. Ready to do some laundry?</p>
@@ -60,10 +153,9 @@
                 <div th:unless="${#lists.isEmpty(studentBookings)}" th:each="booking : ${studentBookings}" 
                      class="card flex justify-between items-center">
                     <div>
-                        <p class="font-bold" th:text="${booking.machine.machineNumber}">Washer 1</p>
-                        <p class="text-sm text-gray-600" th:text="'Date: ' + ${booking.bookingDate}">Date: 2025-11-01T18:00:00</p>
+                        <p class="font-bold text-gray-900" th:text="${booking.machine.machineNumber}">Washer 1</p>
+                        <p class="text-sm text-gray-600" th:text="'Slot Time: ' + ${#temporals.format(booking.bookingDate, 'dd MMM yyyy, HH:mm')}">Slot Time: 2025-11-03 10:00</p>
                     </div>
-                    
                     <span class="text-sm font-semibold px-3 py-1 rounded-full"
                           th:text="${booking.status}"
                           th:classappend="${booking.status.toString() == 'CONFIRMED' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
@@ -71,37 +163,104 @@
                     </span>
                 </div>
             </div>
-
-            <h3 class="text-xl font-semibold mt-8 mb-4 text-blue-600">Quick Status Overview</h3>
+            <h3 class="text-xl font-semibold mt-8 mb-4 text-blue-800">Quick Status Overview</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="dashboard-stats">
-                 <div class="card bg-blue-500 text-white"><p class="text-sm opacity-80">Total Machines</p><p class="text-3xl font-bold mt-1" th:text="${studentStats.totalMachines}">0</p></div>
-                 <div class="card bg-emerald-500 text-white"><p class="text-sm opacity-80">Machines Available</p><p class="text-3xl font-bold mt-1" th:text="${studentStats.availableMachines}">0</p></div>
-                 <div class="card bg-amber-500 text-white"><p class="text-sm opacity-80">Machines In Use</p><p class="text-3xl font-bold mt-1" th:text="${studentStats.inUseMachines}">0</p></div>
+                 <div class="card !bg-blue-500 text-white"><p class="text-sm opacity-80">Total Machines</p><p class="text-3xl font-bold mt-1" th:text="${studentStats.totalMachines}">0</p></div>
+                 <div class="card !bg-emerald-500 text-white"><p class="text-sm opacity-80">Machines Available</p><p class="text-3xl font-bold mt-1" th:text="${studentStats.availableMachines}">0</p></div>
+                 <div class="card !bg-amber-500 text-white"><p class="text-sm opacity-80">Machines In Use</p><p class="text-3xl font-bold mt-1" th:text="${studentStats.inUseMachines}">0</p></div>
             </div>
-            <p class="mt-6 text-center">
+            <p class="mt-8 text-center">
                 <a th:href="@{/student/{studentId}/booking(studentId=${currentUser.studentId})}" class="primary-btn">Go to Booking Page</a>
             </p>
         </div>
 
         <div id="manager-dashboard" th:if="${currentUser.role.toString() == 'MANAGER'}">
+            <h3 class="text-xl font-semibold mb-4 text-blue-800">System Overview</h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6" id="manager-dashboard-stats">
+                <div class="card !bg-blue-500 text-white"><p class="text-sm opacity-80">Total Machines</p><p class="text-3xl font-bold mt-1" th:text="${managerStats.totalMachines}">0</p></div>
+                <div class="card !bg-emerald-500 text-white"><p class="text-sm opacity-80">Machines Available</p><p class="text-3xl font-bold mt-1" th:text="${managerStats.availableMachines}">0</p></div>
+                <div class="card !bg-amber-500 text-white"><p class="text-sm opacity-80">Machines In Use</p><p class="text-3xl font-bold mt-1" th:text="${managerStats.inUseMachines}">0</p></div>
+                <div class="card !bg-red-500 text-white"><p class="text-sm opacity-80">Maintenance / Offline</p><p class="text-3xl font-bold mt-1" th:text="${managerStats.maintenanceMachines}">0</p></div>
             </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+                <div class="lg:col-span-2 card">
+                    <h3 class="text-xl font-semibold mb-4">Recent Activity (เวลา / ใครใช้)</h3>
+                    <div class="space-y-4 max-h-96 overflow-y-auto">
+                        <div th:if="${#lists.isEmpty(recentActivities)}">
+                            <p class="text-gray-500">No recent activity found.</p>
+                        </div>
+                        <div th:unless="${#lists.isEmpty(recentActivities)}" th:each="booking : ${recentActivities}" 
+                             class="flex items-center justify-between p-3 border-b hover:bg-gray-50 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold"
+                                     th:text="${booking.getCustomerInitial()}">?</div>
+                                <div>
+                                    <p class="font-bold text-gray-900">
+                                        <span th:text="${booking.user.name}">User Name</span>
+                                        <span class="font-normal text-gray-600"> booked </span>
+                                        <span th:text="${booking.machine.name}">Machine Name</span>
+                                    </p>
+                                    <p class="text-sm text-gray-500" 
+                                       th:text="'Slot Time: ' + ${#temporals.format(booking.bookingDate, 'dd MMM yyyy, HH:mm')}">
+                                        Slot Time: 3 Nov 2025, 10:00
+                                    </p>
+                                </div>
+                            </div>
+                            <span class="text-sm font-semibold px-3 py-1 rounded-full"
+                                  th:text="${booking.status}"
+                                  th:classappend="${booking.status.toString() == 'COMPLETED' ? 'bg-gray-100 text-gray-600' : (booking.status.toString() == 'CONFIRMED' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700')}">
+                                STATUS
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="text-xl font-semibold mb-4">User Overview</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="font-medium text-gray-600">Total Users</span>
+                            <span class="text-2xl font-bold text-blue-600" th:text="${managerStats.totalUsers}">0</span>
+                        </div>
+                        <ul id="admin-user-summary" class="space-y-3 max-h-80 overflow-y-auto">
+                            <li th:each="user : ${allUsers}" class="flex justify-between items-center border-t pt-2">
+                                <span class="font-medium" th:text="${user.name}">User Name</span>
+                                <span class="text-xs font-semibold px-2 py-0.5 rounded-full" 
+                                      th:text="${user.role}"
+                                      th:classappend="${user.role.toString() == 'MANAGER' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}">
+                                    Role
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div id="admin-view" class="view" th:if="${currentUser.role.toString() == 'MANAGER'}">
+    <div id="admin-view" class="view" th:if="${currentUser.role.toString() == 'MANAGER'}" style="display:none;">
         <h2 class="text-3xl font-bold mb-6 text-gray-800">Manager Administration Panel</h2>
-         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-2 card">
-                <h3 class="text-xl font-semibold mb-4">Machine Status Control</h3>
-                <div id="admin-machine-list" class="space-y-4">
-                    <div th:each="machine : ${allMachines}" class="flex items-center justify-between p-3 border-b hover:bg-gray-100 rounded-lg transition duration-150">
-                        <div class="flex-grow">
-                            <p class="font-bold" th:text="${machine.machineNumber} + ' (' + ${machine.id} + ')'">Machine Name (ID)</p>
-                            <p class="text-sm" 
-                               th:text="'Current: ' + ${machine.status}"
-                               th:classappend="${machine.status == 'Available' ? 'text-emerald-600' : (machine.status == 'In Use' ? 'text-orange-600' : 'text-red-600')}">
-                               Current: Status
-                            </p>
-                        </div>
+        
+        <div class="card mb-8">
+            <h3 class="text-xl font-semibold mb-4">Today's Schedule Management (ควบคุมเวลา)</h3>
+            <div id="admin-schedule-list" class="space-y-4 max-h-[60vh] overflow-y-auto">
+                <p>Loading schedule...</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3 class="text-xl font-semibold mb-4">Machine Status Control (สถานะเครื่อง)</h3>
+            <div id="admin-machine-list" class="space-y-4">
+                
+                <div th:each="machine : ${allMachines}" class="flex items-center justify-between p-3 border-b hover:bg-gray-50 rounded-lg transition duration-150">
+                    <div class="flex-grow">
+                        <p class="font-bold" th:text="${machine.name} + ' (' + ${machine.machineNumber} + ')'">Washer 1 (001)</p>
+                        <p class="text-sm" 
+                           th:text="'Current: ' + ${machine.status}"
+                           th:classappend="${machine.status == 'AVAILABLE' ? 'text-emerald-600' : 'text-red-600'}">
+                           Current: Status
+                        </p>
+                    </div>
+                    <div class="flex items-center">
                         <select th:data-id="${machine.id}" class="machine-status-select border border-gray-300 rounded-md p-1 text-sm mr-4 w-40">
                             <option th:each="status : ${allStatuses}"
                                     th:value="${status}"
@@ -110,30 +269,24 @@
                                 Status
                             </option>
                         </select>
-                        <button th:data-id="${machine.id}" class="update-machine-btn primary-btn py-1 px-3 text-xs">Update</button>
+                        <button th:data-id="${machine.id}" class="update-machine-btn primary-btn">Update</button>
                     </div>
                 </div>
-            </div>
-
-            <div class="card">
-                <h3 class="text-xl font-semibold mb-4">User Management Summary</h3>
-                <ul id="admin-user-summary" class="space-y-3">
-                     <li th:each="user : ${allUsers}" class="flex justify-between items-center border-b pb-2">
-                        <span class="font-medium" th:text="${user.name}">User Name</span>
-                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full" 
-                              th:text="${user.role}"
-                              th:classappend="${user.role.toString() == 'MANAGER' ? 'bg-red-100 text-red-700' : 'bg-blue-1s00 text-blue-700'}">
-                            Role
-                        </span>
-                        <span class="text-xs text-gray-500" th:text="${user.id}">User ID</span>
-                    </li>
-                </ul>
             </div>
         </div>
     </div>
 </div>
 
-<script>
+<script th:inline="javascript">
+    
+    // (ส่งข้อมูลจาก Controller มาให้ JavaScript)
+    const csrfToken = /*[[${_csrf?.token}]]*/ null;
+    const csrfHeader = /*[[${_csrf?.headerName}]]*/ null;
+    var allMachines = /*[[${allMachines}]]*/ []; // (เปลี่ยนเป็น 'var' เพื่อให้เราอัปเดตได้)
+    var todaysBookings = /*[[${todaysBookings}]]*/ []; // (เปลี่ยนเป็น 'var')
+    const currentManager = /*[[${currentUser}]]*/ null;
+
+    // --- (ฟังก์ชันสำหรับแสดงข้อความ) ---
     function showMessage(message, type = 'info') {
         const baseClass = "p-4 mb-2 rounded-lg shadow-lg text-white font-semibold transition-opacity duration-300";
         let colorClass = type === 'success' ? 'bg-emerald-500' : (type === 'error' ? 'bg-red-500' : 'bg-blue-500');
@@ -142,57 +295,57 @@
         $msg.fadeIn(300).delay(3000).fadeOut(500, function() { $(this).remove(); });
     }
 
+    // --- (ฟังก์ชันสำหรับสลับแท็บ) ---
     function showView(viewId) {
         $('.view').hide();
         $(`#${viewId}`).show();
-        
         $('#nav-tabs .tab-btn').removeClass('active');
-        $(`#nav-tabs button.tab-btn[data-target="${viewId}"]`).addClass('active');
+        $(`#nav-tabs .tab-btn[data-target="${viewId}"]`).addClass('active');
     }
 
+    // --- (โค้ดสำหรับปุ่ม "Update" สถานะเครื่อง) ---
     $(document).on('click', '.update-machine-btn', function() {
         const $btn = $(this);
         const machineId = $btn.data('id');
         const $select = $(`.machine-status-select[data-id="${machineId}"]`);
         const newStatus = $select.val();
-
         if (!machineId) return;
-
         $btn.text('Saving...').prop('disabled', true);
 
-        const token = $("meta[name='_csrf']").attr("content");
-        const header = $("meta[name='_csrf_header']").attr("content"); 
-
         $.ajax({
-            type: 'POST',
-            url: '/api/admin/machines/status', 
-            contentType: 'application/json',
-            data: JSON.stringify({
-                machineId: machineId,
-                newStatus: newStatus
-            }),
+            type: 'PUT',
+            url: '/api/machines/' + machineId + '/status', 
+            contentType: 'application/x-www-form-urlencoded',
+            data: { status: newStatus },
             dataType: 'json',
-            beforeSend: function(xhr) {
-                if (header && token) {
-                    xhr.setRequestHeader(header, token);
-                }
-            },
+            beforeSend: function(xhr) { if (csrfHeader && csrfToken) xhr.setRequestHeader(csrfHeader, csrfToken); },
             success: function(response) {
-                const returnedStatus = response.newStatus || newStatus; 
-                showMessage(`${response.name} status updated to: ${returnedStatus}`, 'info');
+                const returnedStatus = response.status || newStatus; 
+                showMessage(`${response.name} status updated to: ${returnedStatus}`, 'success');
+                
+                // (อัปเดตสถานะในหน้าเว็บทันที)
                 const $statusText = $btn.closest('.flex').find('p.text-sm');
                 $statusText.text('Current: ' + returnedStatus);
-                $statusText.removeClass('text-emerald-600 text-orange-600 text-red-600');
-                if (returnedStatus === 'Available') {
-                    $statusText.addClass('text-emerald-600');
-                } else if (returnedStatus === 'In Use') {
-                    $statusText.addClass('text-orange-600');
-                } else {
-                    $statusText.addClass('text-red-600');
+                $statusText.removeClass('text-emerald-600 text-red-600');
+                $statusText.addClass(response.status === 'AVAILABLE' ? 'text-emerald-600' : 'text-red-600');
+
+                // --- ⬇️⬇️⬇️ (นี่คือ Logic ที่เพิ่มเข้ามา) ⬇️⬇️⬇️ ---
+                
+                // 1. ค้นหาเครื่องใน Array หลัก
+                const machineIndex = allMachines.findIndex(m => m.id === machineId);
+                if (machineIndex > -1) {
+                    // 2. อัปเดตสถานะใน Array
+                    allMachines[machineIndex].status = returnedStatus;
                 }
+                
+                // 3. สั่งวาดตารางเวลา "Admin Panel" ใหม่
+                // (ฟังก์ชันนี้จะซ่อนเครื่องที่ 'MAINTENANCE' ให้เอง)
+                renderAdminSchedule();
+                
+                // --- ⬆️⬆️⬆️ (จบส่วนที่เพิ่ม) ⬆️⬆️⬆️ ---
             },
             error: function(xhr) {
-                const errorMsg = xhr.responseJSON ? xhr.responseJSON.message : 'Update failed.';
+                const errorMsg = xhr.responseJSON ? (xhr.responseJSON.message || xhr.responseJSON.error) : 'Update failed.';
                 showMessage(errorMsg, 'error');
             },
             complete: function() {
@@ -201,6 +354,169 @@
         });
     });
 
+    // --- (JavaScript ใหม่สำหรับ "Schedule Management") ---
+    
+    // (ดึงวันที่ปัจจุบันในรูปแบบ "YYYY-MM-DD")
+    function getTodaysDateString() {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    }
+
+    // (ฟังก์ชันสำหรับสร้างตารางเวลา)
+    function renderAdminSchedule() {
+        const $list = $("#admin-schedule-list").empty();
+        const todayStr = getTodaysDateString();
+        
+        const bookingLookup = new Map();
+        todaysBookings.forEach(booking => {
+            const key = `${booking.machine.id}-${booking.bookingDate}`;
+            bookingLookup.set(key, booking);
+        });
+
+        const timeSlots = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"];
+
+        let hasAvailableMachines = false; // (ตัวแปรเช็คว่ามีเครื่องให้โชว์ไหม)
+
+        allMachines.forEach(machine => {
+            
+            // --- ⬇️⬇️⬇️ (นี่คือ Logic ที่เพิ่มเข้ามา) ⬇️⬇️⬇️ ---
+            // (ถ้าเครื่องปิดซ่อม (MAINTENANCE) ให้ข้ามไปเลย)
+            if (machine.status === 'MAINTENANCE' || machine.status === 'OUT_OF_SERVICE') {
+                return; // (ข้ามการวาดการ์ดของเครื่องนี้)
+            }
+            // --- ⬆️⬆️⬆️ (จบส่วนที่เพิ่ม) ⬆️⬆️⬆️ ---
+            
+            hasAvailableMachines = true; // (เจอเครื่องที่ว่างอย่างน้อย 1 เครื่อง)
+            let slotButtonsHTML = "";
+
+            timeSlots.forEach(slotTime => {
+                const isoSlotTime = `${todayStr}T${slotTime}:00`;
+                const lookupKey = `${machine.id}-${isoSlotTime}`;
+                const booking = bookingLookup.get(lookupKey);
+
+                if (booking) {
+                    // (ช่องนี้ "เต็ม")
+                    let userName = booking.user ? booking.user.name : "Unknown";
+                    if(booking.user.id === currentManager.id) userName = "ADMIN BLOCK";
+                    
+                    slotButtonsHTML += `
+                        <div class="text-center">
+                            <span class="text-xs font-semibold text-gray-700">${slotTime}</span>
+                            <button class="admin-slot-btn admin-btn-taken w-full mt-1 btn-cancel-booking" 
+                                    data-booking-id="${booking.id}">
+                                🔴 ${userName}
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    // (ช่องนี้ "ว่าง")
+                    slotButtonsHTML += `
+                        <div class="text-center">
+                            <span class="text-xs font-semibold text-gray-700">${slotTime}</span>
+                            <button class="admin-slot-btn admin-btn-available w-full mt-1 btn-block-slot" 
+                                    data-machine-id="${machine.id}"
+                                    data-slot-time="${isoSlotTime}">
+                                🟢 AVAILABLE
+                            </button>
+                        </div>
+                    `;
+                }
+            });
+
+            const machineCardHTML = `
+                <div class="card p-4 border-b">
+                    <h4 class="font-bold text-gray-800 mb-3">${machine.name} (${machine.machineNumber})</h4>
+                    <div class="grid grid-cols-5 gap-3">
+                        ${slotButtonsHTML}
+                    </div>
+                </div>
+            `;
+            $list.append(machineCardHTML);
+        });
+
+        // (ถ้าไม่มีเครื่อง AVAILABLE เลย ให้แสดงข้อความ)
+        if (!hasAvailableMachines) {
+            $list.html('<p class="text-gray-500">All machines are currently under maintenance or out of service.</p>');
+        }
+    }
+
+    // (ฟังก์ชันสำหรับปุ่ม [Cancel Booking])
+    $(document).on('click', '.btn-cancel-booking', function() {
+        const $btn = $(this);
+        const bookingId = $btn.data('booking-id');
+        
+        if (!confirm("Are you sure you want to cancel this booking?")) return;
+        
+        $btn.text('Cancelling...').prop('disabled', true);
+
+        $.ajax({
+            type: 'DELETE',
+            url: '/api/bookings/' + bookingId,
+            beforeSend: function(xhr) { if (csrfHeader && csrfToken) xhr.setRequestHeader(csrfHeader, csrfToken); },
+            success: function() {
+                showMessage('Booking cancelled successfully!', 'success');
+                // (อัปเดต Array และวาดใหม่)
+                todaysBookings = todaysBookings.filter(b => b.id !== bookingId);
+                renderAdminSchedule();
+            },
+            error: function(xhr) {
+                showMessage('Failed to cancel booking.', 'error');
+                $btn.text('🔴 TAKEN').prop('disabled', false);
+            }
+        });
+    });
+
+    // (ฟังก์ชันสำหรับปุ่ม [Block Slot])
+    $(document).on('click', '.btn-block-slot', function() {
+        const $btn = $(this);
+        const machineId = $btn.data('machine-id');
+        const slotTime = $btn.data('slot-time');
+        
+        if (!confirm("Are you sure you want to block this slot?")) return;
+
+        $btn.text('Blocking...').prop('disabled', true);
+        
+        const bookingData = {
+          user: { id: currentManager.id }, 
+          machine: { id: machineId }, 
+          bookingDate: slotTime, 
+          amount: 0.0,
+          service: "ADMIN_BLOCK",
+          status: "CONFIRMED"
+        };
+
+        $.ajax({
+            type: 'POST',
+            url: '/api/bookings',
+            contentType: 'application/json',
+            data: JSON.stringify(bookingData),
+            dataType: 'json',
+            beforeSend: function(xhr) { if (csrfHeader && csrfToken) xhr.setRequestHeader(csrfHeader, csrfToken); },
+            success: function(newBooking) {
+                showMessage('Slot blocked successfully!', 'success');
+                // (อัปเดต Array และวาดใหม่)
+                // (เราต้องแน่ใจว่า newBooking มี machine และ user object อยู่ข้างใน)
+                // (ซึ่ง Controller ควรสั่ง Service ให้ return Booking ที่สมบูรณ์)
+                
+                // (วิธีแก้แบบง่ายๆ คือดึงข้อมูล machine/user จากตัวแปรที่มีอยู่)
+                newBooking.user = currentManager;
+                newBooking.machine = allMachines.find(m => m.id === machineId);
+                
+                todaysBookings.push(newBooking);
+                renderAdminSchedule();
+            },
+            error: function(xhr) {
+                const errorMsg = xhr.responseJSON ? (xhr.responseJSON.message || xhr.responseJSON.error) : 'Failed to block slot.';
+                showMessage(errorMsg, 'error');
+                $btn.text('🟢 AVAILABLE').prop('disabled', false);
+            }
+        });
+    });
+    
+    // --- (โค้ดสำหรับสลับแท็บ และ เริ่มต้น) ---
     $(document).ready(function() {
         $(document).on('click', '#nav-tabs button.tab-btn', function() {
             const target = $(this).data('target');
@@ -208,6 +524,11 @@
         });
         
         $('#nav-tabs button.tab-btn[data-target="dashboard-view"]').addClass('active');
+
+        // (วาดตารางเวลาใน Admin Panel ทันทีที่โหลดหน้า)
+        if(currentManager && currentManager.role === 'MANAGER') {
+            renderAdminSchedule();
+        }
     });
 
 </script>

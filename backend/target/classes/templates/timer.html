@@ -3,17 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campus Laundry System - Timer</title>
+    <title>Campus Laundry System - Confirm Booking</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- 1. เปลี่ยน Font เป็น Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f7f9fb; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+        /* 2. เปลี่ยน Font และ Background ของ Body */
+        body { font-family: "Poppins", sans-serif; background: #e7f5ff; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
         .app-container { max-width: 1000px; width: 95%; margin: 20px auto; background: white; border-radius: 1rem; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); }
-        /* ทำให้ .view แสดงผลทันที ไม่ต้องซ่อน */
-        .view { padding: 0; } /* Timer view needs no padding on its container */
-        .primary-btn { background-color: #3b82f6; color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; transition: background-color 0.3s, transform 0.1s; }
-        .primary-btn:hover { background-color: #2563eb; }
+        .view { padding: 0; }
+        
+        /* 3. ลบ .primary-btn และ .success-btn ออก */
+
+        /* 4. เพิ่ม Style ปุ่ม .submit-btn จากหน้า Login */
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none; /* เพิ่มสำหรับ <a> tag */
+        }
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 123, 255, 0.4);
+            filter: brightness(1.1);
+        }
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .tab-btn { display: inline-block; padding: 0.25rem 0.75rem; font-size: 0.875rem; border-bottom-width: 2px; border-color: transparent; }
         .tab-btn:hover { border-color: #9ca3af; }
         .tab-btn.active { border-color: #3b82f6; color: #3b82f6; font-weight: 700; }
@@ -33,72 +68,94 @@
         </div>
     </nav>
 
-    <div id="timer-view" class="view text-center text-white rounded-b-xl min-h-[60vh] flex flex-col justify-center items-center" style="background-color: #2c1e4a;"> 
+    <!-- 5. ลบพื้นหลังสีม่วง (#2c1e4a) และ text-white ออก, เพิ่ม padding -->
+    <div id="timer-view" class="view text-center rounded-b-xl min-h-[60vh] flex flex-col justify-center items-center p-10 md:p-12"> 
         
-        <div id="timer-active">
-            <svg class="w-16 h-16 mb-4 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <h2 class="text-3xl font-bold mb-4 tracking-widest uppercase">THE COUNTDOWN</h2>
-            <p id="timer-status-message" class="text-lg text-indigo-200 mb-8 transition-all">Waiting for Admin Approval...</p>
+        <div id="timer-active" class="w-full max-w-md flex flex-col items-center">
             
-            <div id="timer-display" class="flex justify-center space-x-4 text-8xl font-extrabold my-4">
-                <div class="p-4 rounded-lg bg-white bg-opacity-10">
+            <!-- 6. เปลี่ยนสี Text เป็นสีเข้ม -->
+            <h2 class="text-2xl font-bold mb-2 tracking-widest uppercase text-gray-800">Booking Countdown</h2>
+            <div id="timer-display" class="flex justify-center space-x-2 text-6xl font-extrabold my-2 text-gray-900">
+                <!-- 7. เปลี่ยน Style ช่องตัวเลข ให้เหมือนช่อง Input ของหน้า Login -->
+                <div class="p-3 rounded-lg bg-gray-100 border border-gray-200 shadow-inner">
                     <span id="timer-min">15</span>
                 </div>
-                <span class="self-center">:</span>
-                <div class="p-4 rounded-lg bg-white bg-opacity-10">
+                <span class="self-center text-gray-900">:</span>
+                <div class="p-3 rounded-lg bg-gray-100 border border-gray-200 shadow-inner">
                     <span id="timer-sec">00</span>
                 </div>
             </div>
+            <!-- 8. เปลี่ยนสี Text เป็นสีเทา -->
+            <p id="timer-status-message" class="text-lg text-gray-600 mb-4 transition-all">Please confirm your booking within the time limit.</p>
             
-            <p id="timer-subtext" class="mt-8 text-indigo-300">Your booking will be confirmed once approved (Max 15 mins).</p>
+            <!-- 9. เปลี่ยน Style กล่องรายละเอียด (ให้เข้ากับธีมสีฟ้า) -->
+            <div class="w-full max-w-sm p-4 my-6 bg-blue-50 border border-blue-200 rounded-lg text-left text-sm">
+                <h3 class="text-lg font-semibold text-blue-900 mb-3 text-center">Booking Details</h3>
+                <div class="border-t border-blue-200 pt-3 space-y-2">
+                    <p class="flex justify-between">
+                        <span class="font-medium text-blue-800">Machine:</span> 
+                        <strong id="detail-machine" class="text-blue-900 font-semibold">...</strong>
+                    </p>
+                    <p class="flex justify-between">
+                        <span class="font-medium text-blue-800">Time Slot:</span> 
+                        <strong id="detail-slot" class="text-blue-900 font-semibold">...</strong>
+                    </p>
+                </div>
+            </div>
+
+            <!-- 10. เปลี่ยน class ปุ่ม จาก success-btn เป็น submit-btn -->
+            <button id="confirm-btn" class="w-full text-center py-3 rounded-lg submit-btn mt-4">
+                Confirm Booking
+            </button>
+            <p id="timer-subtext" class="mt-4 text-xs text-gray-500">Your booking will be cancelled if not confirmed in time.</p>
         </div>
 
+        <!-- 11. เปลี่ยนสีหน้าจอ Success -->
         <div id="approval-success" class="hidden">
-            <svg class="w-20 h-20 text-emerald-400 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <svg class="w-20 h-20 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <h2 class="text-4xl font-bold text-emerald-400 mb-4">Booking Approved!</h2>
-            <p class="text-lg text-indigo-200 mb-8">Your schedule is confirmed. Redirecting to dashboard...</p>
-            <a href="/student/dashboard" class="primary-btn">Go to Dashboard Now</a>
+            <h2 class="text-4xl font-bold text-blue-600 mb-4">Booking Confirmed!</h2>
+            <p class="text-lg text-gray-600 mb-8">Your schedule is confirmed. Redirecting to dashboard...</p>
+            <!-- 12. เปลี่ยน class ปุ่ม จาก primary-btn เป็น submit-btn -->
+            <a href="/student/dashboard" class="submit-btn inline-block text-center">Go to Dashboard Now</a>
         </div>
     </div>
 
 </div>
 
 <script>
-    let approvalTimerInterval = null;
+    let paymentTimerInterval = null;
     let pendingBooking = null;
+    let isExpired = false; 
 
-    // --- TIMER LOGIC (Admin Approval) ---
-
-    function startApprovalTimer() {
+    // --- TIMER LOGIC ---
+    function startPaymentTimer() {
         // 15 minute timer (15 * 60 seconds)
         let totalSeconds = 15 * 60; 
 
         const $min = $('#timer-min');
         const $sec = $('#timer-sec');
         
-        if (approvalTimerInterval) {
-            clearInterval(approvalTimerInterval);
+        if (paymentTimerInterval) {
+            clearInterval(paymentTimerInterval);
         }
 
-        // Reset UI to "waiting" state
         $('#timer-active').removeClass('hidden');
         $('#approval-success').addClass('hidden');
-        $('#timer-status-message').text('Waiting for Admin Approval...').removeClass('text-red-400 text-emerald-400');
-        $('#timer-subtext').text('Your booking will be confirmed once approved (Max 15 mins).');
+        isExpired = false;
 
-        approvalTimerInterval = setInterval(() => {
+        paymentTimerInterval = setInterval(() => {
             if (totalSeconds < 0) {
                 // Timer expired
-                clearInterval(approvalTimerInterval);
+                clearInterval(paymentTimerInterval);
+                isExpired = true; 
                 $min.text('00');
                 $sec.text('00');
-                $('#timer-status-message').text('Approval Time Expired').addClass('text-red-400');
+                $('#timer-status-message').text('Booking Time Expired').addClass('text-red-400');
                 $('#timer-subtext').text('Please go back and try booking again.');
-                sessionStorage.removeItem('pendingBooking'); // Clear expired booking
+                $('#confirm-btn').prop('disabled', true); // .css('opacity', 0.5) ถูกจัดการโดย class .submit-btn:disabled แล้ว
+                sessionStorage.removeItem('pendingBooking'); 
                 return;
             }
             
@@ -112,29 +169,34 @@
         }, 1000);
     }
 
-    function simulateAdminApproval(delay) {
-        setTimeout(() => {
-            if (approvalTimerInterval) {
-                clearInterval(approvalTimerInterval);
-            }
-            
-            $('#timer-active').addClass('hidden');
-            $('#approval-success').removeClass('hidden');
-            
-            // "store the data in a new database for the queue"
-            console.log('Booking Approved and Stored:', pendingBooking);
-            
-            // Clear the data from storage now that it's processed
-            sessionStorage.removeItem('pendingBooking');
-            
-            // "show and display your booked schedule in the dashboard."
-            // We'll redirect after 4 seconds.
-            setTimeout(() => {
-                 window.location.href = '/student/dashboard'; // หรือ 'booking.html'
-            }, 4000); 
+    // --- "Confirm" Button Logic ---
+    $('#confirm-btn').on('click', function() {
+        if (isExpired) {
+            console.warn("Confirm button clicked, but timer has already expired.");
+            return;
+        }
 
-        }, delay); 
-    }
+        // 1. หยุดเวลานับถอยหลัง
+        if (paymentTimerInterval) {
+            clearInterval(paymentTimerInterval);
+        }
+        
+        // 2. ซ่อนหน้าจอ Timer
+        $('#timer-active').addClass('hidden');
+        // 3. แสดงหน้าจอสำเร็จ
+        $('#approval-success').removeClass('hidden');
+        
+        console.log('Booking Confirmed by User. Storing data:', pendingBooking);
+        
+        // 4. ล้างข้อมูลจองที่ค้างไว้
+        sessionStorage.removeItem('pendingBooking');
+        
+        // 5. Redirect ไปหน้า Dashboard
+        setTimeout(() => {
+             window.location.href = '/student/dashboard';
+        }, 4000); 
+    });
+
 
     // --- INITIALIZATION ---
     $(document).ready(function() {
@@ -142,26 +204,29 @@
         const bookingDataJSON = sessionStorage.getItem('pendingBooking');
 
         if (!bookingDataJSON) {
-            // ถ้าไม่มีข้อมูล ให้ส่งกลับไปหน้าจอง
-            alert('No pending booking found. Redirecting to booking page.');
-            window.location.href = 'booking.html';
+            console.warn('No pending booking found. Redirecting to booking page.');
+            window.location.href = 'booking.html'; // หรือ /booking
             return;
         }
 
         // 2. แปลงข้อมูลกลับเป็น Object
         pendingBooking = JSON.parse(bookingDataJSON);
 
-        // 3. (Optional) แสดงชื่อผู้ใช้ในแถบนำทาง
-        if (pendingBooking.user) {
-            $('#user-info').text(`${pendingBooking.user} (Student)`).show();
+        // 3. แสดงข้อมูล User (ถ้ามี)
+        if (pendingBooking) { 
+            if (pendingBooking.user) {
+                $('#user-info').text(`${pendingBooking.user} (Student)`).show();
+            }
+            
+            // (แสดงรายละเอียดเครื่องและเวลา)
+            $('#detail-machine').text(pendingBooking.machineName || 'N/A');
+            $('#detail-slot').text(pendingBooking.slot || 'N/A');
         }
 
         // 4. เริ่มจับเวลา 15 นาที
-        startApprovalTimer();
-        
-        // 5. จำลองการอนุมัติจาก Admin (10 วินาที)
-        simulateAdminApproval(10000); // 10 second delay for demo
+        startPaymentTimer();
     });
 </script>
 </body>
 </html>
+

@@ -18,7 +18,7 @@ import repo.RatingRepository;
 import repo.UserRepository;
 
 @Service
-@Transactional
+@Transactional // (ตั้งค่า Transactional ที่ระดับ Class)
 public class MachineService {
     
     @Autowired
@@ -32,15 +32,11 @@ public class MachineService {
     
     // Manager assigns machine to a student
     public Machine assignMachine(Long machineId, Long userId) {
-        Machine machine = machineRepository.findById(machineId).orElse(null);
-        if (machine == null) {
-            throw new RuntimeException("Machine not found");
-        }
+        Machine machine = machineRepository.findById(machineId)
+                .orElseThrow(() -> new IllegalArgumentException("Machine not found with ID: " + machineId));
         
-        User user = userRepository.findById(userId).orElse(null);
-        if (user == null) {
-            throw new RuntimeException("User not found");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
             
         machine.setStatus(AppConstants.STATUS_IN_USE);
         machine.setCurrentUser(user);
@@ -51,10 +47,8 @@ public class MachineService {
     
     // Manager releases machine (student finished)
     public Machine releaseMachine(Long machineId) {
-        Machine machine = machineRepository.findById(machineId).orElse(null);
-        if (machine == null) {
-            throw new RuntimeException("Machine not found");
-        }
+        Machine machine = machineRepository.findById(machineId)
+                .orElseThrow(() -> new IllegalArgumentException("Machine not found with ID: " + machineId));
             
         machine.setStatus(AppConstants.STATUS_AVAILABLE);
         machine.setCurrentUser(null);
@@ -65,14 +59,11 @@ public class MachineService {
     
     // Manager changes machine status
     public Machine updateMachineStatus(Long machineId, String status) {
-        Machine machine = machineRepository.findById(machineId).orElse(null);
-        if (machine == null) {
-            throw new RuntimeException("Machine not found");
-        }
+        Machine machine = machineRepository.findById(machineId)
+                .orElseThrow(() -> new IllegalArgumentException("Machine not found with ID: " + machineId));
             
         machine.setStatus(status);
         
-        // If setting to maintenance or out of service, release current user
         if (status.equals(AppConstants.STATUS_MAINTENANCE) || 
             status.equals(AppConstants.STATUS_OUT_OF_SERVICE)) {
             machine.setCurrentUser(null);
@@ -83,48 +74,65 @@ public class MachineService {
     }
     
     // Students can view all machines
+    @Transactional(readOnly = true)
     public List<Machine> getAllMachines() {
+        // (เรา Override findAll() ใน Repository ให้ JOIN FETCH แล้ว)
         return machineRepository.findAll();
     }
     
+    // --- ⬇️⬇️⬇️ นี่คือเมธอดที่แก้ไข ⬇️⬇️⬇️ ---
     // Students can check available machines
+    @Transactional(readOnly = true)
     public List<Machine> getAvailableMachines() {
-        return machineRepository.findByStatus(AppConstants.STATUS_AVAILABLE);
+        // (แก้ไข) เรียกใช้เมธอดที่มี JOIN FETCH
+        return machineRepository.findByStatusWithUser(AppConstants.STATUS_AVAILABLE);
     }
+    // --- ⬆️⬆️⬆️ จบส่วนที่แก้ไข ⬆️⬆️⬆️ ---
     
+    // --- ⬇️⬇️⬇️ นี่คือเมธอดที่แก้ไข ⬇️⬇️⬇️ ---
     // Get machines currently in use
+    @Transactional(readOnly = true)
     public List<Machine> getInUseMachines() {
-        return machineRepository.findByStatus(AppConstants.STATUS_IN_USE);
+        // (แก้ไข) เรียกใช้เมธอดที่มี JOIN FETCH
+        return machineRepository.findByStatusWithUser(AppConstants.STATUS_IN_USE);
     }
+    // --- ⬆️⬆️⬆️ จบส่วนที่แก้ไข ⬆️⬆️⬆️ ---
     
+    // --- ⬇️⬇️⬇️ นี่คือเมธอดที่แก้ไข ⬇️⬇️⬇️ ---
     // Get machines by user
+    @Transactional(readOnly = true)
     public List<Machine> getMachinesByUser(Long userId) {
-        return machineRepository.findByCurrentUserId(userId);
+        // (แก้ไข) เรียกใช้เมธอดใหม่ที่มี JOIN FETCH
+        return machineRepository.findByCurrentUserIdWithUser(userId);
     }
+    // --- ⬆️⬆️⬆️ จบส่วนที่แก้ไข ⬆️⬆️⬆️ ---
     
     // Manager deletes machine
     public void deleteMachine(Long machineId) {
+        if (!machineRepository.existsById(machineId)) {
+             throw new IllegalArgumentException("Machine not found with ID: " + machineId);
+        }
         machineRepository.deleteById(machineId);
     }
     
     // Get machine by ID
+    @Transactional(readOnly = true)
     public Optional<Machine> getMachineById(Long machineId) {
         return machineRepository.findById(machineId);
     }
     
     /**
      * Smart matching algorithm to find the best available machine for a user
-     * Considers: availability, location preferences, and machine ratings
      */
+    @Transactional(readOnly = true)
     public Optional<Machine> findBestAvailableMachine(Long userId, String preferredLocation) {
         try {
-            User user = userRepository.findById(userId).orElse(null);
-            if (user == null) {
+            if (!userRepository.existsById(userId)) {
                 return Optional.empty();
             }
             
-            // Get all available machines
-            List<Machine> availableMachines = machineRepository.findByStatus(AppConstants.STATUS_AVAILABLE);
+            // (แก้ไข) เรียกใช้เมธอดที่มี JOIN FETCH
+            List<Machine> availableMachines = machineRepository.findByStatusWithUser(AppConstants.STATUS_AVAILABLE);
             
             if (availableMachines.isEmpty()) {
                 return Optional.empty();
@@ -152,14 +160,15 @@ public class MachineService {
     /**
      * Get a list of suggested machines ranked by rating and quality
      */
+    @Transactional(readOnly = true)
     public List<Machine> getSuggestedMachines(Long userId, String preferredLocation, int limit) {
         try {
-            User user = userRepository.findById(userId).orElse(null);
-            if (user == null) {
+            if (!userRepository.existsById(userId)) {
                 return List.of();
             }
             
-            List<Machine> availableMachines = machineRepository.findByStatus(AppConstants.STATUS_AVAILABLE);
+            // (แก้ไข) เรียกใช้เมธอดที่มี JOIN FETCH
+            List<Machine> availableMachines = machineRepository.findByStatusWithUser(AppConstants.STATUS_AVAILABLE);
             
             if (availableMachines.isEmpty()) {
                 return List.of();
@@ -184,8 +193,10 @@ public class MachineService {
     /**
      * Get available machines grouped by location
      */
+    @Transactional(readOnly = true)
     public Map<String, List<Machine>> getAvailableMachinesByLocationGroup() {
-        List<Machine> availableMachines = getAvailableMachines();
+        // (เมธอดนี้จะเรียก getAvailableMachines() ที่เราแก้แล้ว)
+        List<Machine> availableMachines = getAvailableMachines(); 
         return availableMachines.stream()
             .collect(Collectors.groupingBy(m -> m.getLocation() != null ? m.getLocation() : "Unknown"));
     }
