@@ -16,3 +16,16 @@ VALUES
 (1, 1, '2025-10-28 10:00:00', 'CONFIRMED', 5.50, 'Washing', NOW(), NOW()),
 (1, 2, '2025-10-28 14:00:00', 'PENDING', 5.50, 'Washing', NOW(), NOW()),
 (2, 1, '2025-10-29 09:00:00', 'CONFIRMED', 5.50, 'Washing', NOW(), NOW());
+
+INSERT INTO users (student_id, name, email, password, role, is_active, created_at, updated_at)
+VALUES 
+('STUDENT001', 'Student One', '1@gmail.com', '1', 'STUDENT', TRUE, NOW(), NOW()),
+('STUDENT002', 'Student Two', '2@gmail.com', '1', 'STUDENT', TRUE, NOW(), NOW()),
+('MANAGER001', 'Manager One', '3@gmail.com', '1', 'MANAGER', TRUE, NOW(), NOW());
+
+INSERT INTO machines (machine_number, name, machine_type, brand, model, capacity, status, location, description, price_per_hour, price_per_day, current_user_id, usage_start_time, created_at, updated_at) 
+VALUES 
+('003', 'Washing Machine - Eco', 'Washing Machine', 'Electrolux', 'WM-E100', '7kg', 'AVAILABLE', 'Laundry Room B', 'Eco-friendly model', 2.00, 12.00, NULL, NULL, NOW(), NOW()),
+('004', 'Washing Machine - Standard', 'Washing Machine', 'Samsung', 'WM-S700', '8kg', 'AVAILABLE', 'Laundry Room B', 'Standard workhorse machine', 2.50, 15.00, NULL, NULL, NOW(), NOW()),
+('005', 'Washing Machine - Large', 'Washing Machine', 'LG', 'WM-L3000', '12kg', 'AVAILABLE', 'Laundry Room C', 'Large capacity for blankets', 3.50, 20.00, NULL, NULL, NOW(), NOW()),
+('006', 'Washing Machine - Compact', 'Washing Machine', 'Toshiba', 'WM-C50', '5kg', 'AVAILABLE', 'Laundry Room C', 'Compact machine for small loads', 1.50, 10.00, NULL, NULL, NOW(), NOW());

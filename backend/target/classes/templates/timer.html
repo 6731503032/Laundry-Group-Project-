@@ -1,27 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campus Laundry System - Confirm Booking</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Campus Laundry System - Booking Status</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <!-- 1. เปลี่ยน Font เป็น Poppins -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
     />
     <style>
-        /* 2. เปลี่ยน Font และ Background ของ Body */
         body { font-family: "Poppins", sans-serif; background: #e7f5ff; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
         .app-container { max-width: 1000px; width: 95%; margin: 20px auto; background: white; border-radius: 1rem; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); }
         .view { padding: 0; }
-        
-        /* 3. ลบ .primary-btn และ .success-btn ออก */
-
-        /* 4. เพิ่ม Style ปุ่ม .submit-btn จากหน้า Login */
         .submit-btn {
             width: 100%;
             padding: 14px;
@@ -33,20 +27,21 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            text-decoration: none; /* เพิ่มสำหรับ <a> tag */
+            text-decoration: none; 
         }
         .submit-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 20px rgba(0, 123, 255, 0.4);
             filter: brightness(1.1);
         }
-        .submit-btn:active {
-            transform: translateY(0);
+        .submit-btn:active { transform: translateY(0); }
+        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        
+        .finish-btn {
+             background: linear-gradient(135deg, #dc3545 0%, #a71d2a 100%);
         }
-        .submit-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
+        .finish-btn:hover {
+            box-shadow: 0 5px 20px rgba(220, 53, 69, 0.4);
         }
 
         .tab-btn { display: inline-block; padding: 0.25rem 0.75rem; font-size: 0.875rem; border-bottom-width: 2px; border-color: transparent; }
@@ -61,188 +56,303 @@
         <h1 class="text-2xl font-bold text-gray-800">Laundry Hub</h1>
         <div class="flex space-x-4 items-center">
             <div id="nav-tabs" class="space-x-2">
-                <a href="/student/dashboard" class="tab-btn">Dashboard</a>
-                <a href="booking.html" id="nav-booking-link" class="tab-btn active">Booking</a>
-                </div>
-            <span id="user-info" class="text-sm text-gray-600 font-medium hidden sm:inline"></span>
+                <a id="nav-dashboard-link" href="#" class="tab-btn">Dashboard</a>
+                <a id="nav-booking-link" href="#" class="tab-btn active">Booking Status</a>
+            </div>
+            <span id="user-info" class="text-sm text-gray-600 font-medium sm:inline"></span>
         </div>
     </nav>
 
-    <!-- 5. ลบพื้นหลังสีม่วง (#2c1e4a) และ text-white ออก, เพิ่ม padding -->
-    <div id="timer-view" class="view text-center rounded-b-xl min-h-[60vh] flex flex-col justify-center items-center p-10 md:p-12"> 
-        
-        <div id="timer-active" class="w-full max-w-md flex flex-col items-center">
+    <div id="timer-view-container" class="view text-center rounded-b-xl min-h-[60vh] flex flex-col justify-center items-center p-10 md:p-12">
+
+        <div id="pending-view" class="w-full max-w-md flex flex-col items-center">
             
-            <!-- 6. เปลี่ยนสี Text เป็นสีเข้ม -->
-            <h2 class="text-2xl font-bold mb-2 tracking-widest uppercase text-gray-800">Booking Countdown</h2>
-            <div id="timer-display" class="flex justify-center space-x-2 text-6xl font-extrabold my-2 text-gray-900">
-                <!-- 7. เปลี่ยน Style ช่องตัวเลข ให้เหมือนช่อง Input ของหน้า Login -->
+            <h2 class="text-2xl font-bold mb-2 tracking-widest uppercase text-gray-800">Waiting for Approval</h2>
+            
+            <div id="timer-display-15" class="flex justify-center space-x-2 text-6xl font-extrabold my-2 text-gray-900">
                 <div class="p-3 rounded-lg bg-gray-100 border border-gray-200 shadow-inner">
-                    <span id="timer-min">15</span>
+                    <span id="timer-min-15">15</span>
                 </div>
                 <span class="self-center text-gray-900">:</span>
                 <div class="p-3 rounded-lg bg-gray-100 border border-gray-200 shadow-inner">
-                    <span id="timer-sec">00</span>
+                    <span id="timer-sec-15">00</span>
                 </div>
             </div>
-            <!-- 8. เปลี่ยนสี Text เป็นสีเทา -->
-            <p id="timer-status-message" class="text-lg text-gray-600 mb-4 transition-all">Please confirm your booking within the time limit.</p>
             
-            <!-- 9. เปลี่ยน Style กล่องรายละเอียด (ให้เข้ากับธีมสีฟ้า) -->
+            <p id="timer-status-message-15" class="text-lg text-amber-600 mb-4 transition-all">
+                Please pay at the counter within 15 minutes.
+            </p>
+            
             <div class="w-full max-w-sm p-4 my-6 bg-blue-50 border border-blue-200 rounded-lg text-left text-sm">
                 <h3 class="text-lg font-semibold text-blue-900 mb-3 text-center">Booking Details</h3>
                 <div class="border-t border-blue-200 pt-3 space-y-2">
                     <p class="flex justify-between">
-                        <span class="font-medium text-blue-800">Machine:</span> 
+                        <span class="font-medium text-blue-800">Machine:</span>
                         <strong id="detail-machine" class="text-blue-900 font-semibold">...</strong>
                     </p>
                     <p class="flex justify-between">
-                        <span class="font-medium text-blue-800">Time Slot:</span> 
+                        <span class="font-medium text-blue-800">Time Slot:</span>
                         <strong id="detail-slot" class="text-blue-900 font-semibold">...</strong>
                     </p>
                 </div>
             </div>
-
-            <!-- 10. เปลี่ยน class ปุ่ม จาก success-btn เป็น submit-btn -->
-            <button id="confirm-btn" class="w-full text-center py-3 rounded-lg submit-btn mt-4">
-                Confirm Booking
-            </button>
-            <p id="timer-subtext" class="mt-4 text-xs text-gray-500">Your booking will be cancelled if not confirmed in time.</p>
+            
+            <p id="timer-subtext-15" class="mt-4 text-xs text-gray-500">Your booking will be cancelled if not approved by the manager in time.</p>
         </div>
 
-        <!-- 11. เปลี่ยนสีหน้าจอ Success -->
-        <div id="approval-success" class="hidden">
+        <div id="in-progress-view" class="w-full max-w-md flex flex-col items-center hidden">
+            
+            <h2 class="text-2xl font-bold mb-2 tracking-widest uppercase text-emerald-600">Machine In Use</h2>
+            
+            <div id="timer-display-60" class="flex justify-center space-x-2 text-6xl font-extrabold my-2 text-emerald-700">
+                <div class="p-3 rounded-lg bg-gray-100 border border-gray-200 shadow-inner">
+                    <span id="timer-min-60">60</span>
+                </div>
+                <span class="self-center text-gray-900">:</span>
+                <div class="p-3 rounded-lg bg-gray-100 border border-gray-200 shadow-inner">
+                    <span id="timer-sec-60">00</span>
+                </div>
+            </div>
+            
+            <p id="timer-status-message-60" class="text-lg text-gray-600 mb-4 transition-all">
+                Your laundry is in progress.
+            </p>
+
+            <button id="finish-btn" class="w-full text-center py-3 rounded-lg submit-btn finish-btn mt-6">
+                Finish Usage
+            </button>
+        </div>
+
+        <div id="final-view" class="hidden">
             <svg class="w-20 h-20 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <h2 class="text-4xl font-bold text-blue-600 mb-4">Booking Confirmed!</h2>
-            <p class="text-lg text-gray-600 mb-8">Your schedule is confirmed. Redirecting to dashboard...</p>
-            <!-- 12. เปลี่ยน class ปุ่ม จาก primary-btn เป็น submit-btn -->
+            <h2 id="final-title" class="text-4xl font-bold text-blue-600 mb-4">...</h2>
+            <p id="final-subtitle" class="text-lg text-gray-600 mb-8">Redirecting to dashboard...</p>
             <a id="go-to-dashboard-btn" href="#" class="submit-btn inline-block text-center">Go to Dashboard Now</a>
         </div>
-    </div>
 
+    </div>
 </div>
 
-<script>
-    // --- ตัวแปรส่วนกลาง ---
-    let paymentTimerInterval = null;
-    let pendingBooking = null;
-    let isExpired = false; 
+<script th:inline="javascript">
+    const csrfToken = /*[[${_csrf?.token}]]*/ null;
+    const csrfHeader = /*[[${_csrf?.headerName}]]*/ null;
+    
+    let pendingBooking = null; 
+    let bookingId = null; 
+    let studentId = null; 
+    let studentDashboardUrl = "/"; 
 
-    // --- LOGIC การนับเวลาถอยหลัง ---
-    function startPaymentTimer() {
-        // 15 minute timer (15 * 60 seconds)
-        let totalSeconds = 15 * 60; 
+    let timer15MinInterval = null;
+    let timer60MinInterval = null;
+    let statusPollingInterval = null; 
 
-        const $min = $('#timer-min');
-        const $sec = $('#timer-sec');
-        
-        if (paymentTimerInterval) {
-            clearInterval(paymentTimerInterval);
-        }
+    function showView(viewName) {
+        $('#pending-view').addClass('hidden');
+        $('#in-progress-view').addClass('hidden');
+        $('#final-view').addClass('hidden');
+        $(`#${viewName}`).removeClass('hidden');
+    }
 
-        $('#timer-active').removeClass('hidden');
-        $('#approval-success').addClass('hidden');
-        isExpired = false;
+    // --- (1. Logic การนับถอยหลัง 15 นาที - แก้ไขให้รับค่าเริ่มต้น) ---
+    function startPendingTimer(initialSeconds) {
+        // ถ้าไม่ได้ส่งค่ามา (undefined) ให้ใช้ 15 นาที (900 วิ)
+        let totalSeconds = (initialSeconds !== undefined) ? initialSeconds : 15 * 60;
+        const $min = $('#timer-min-15');
+        const $sec = $('#timer-sec-15');
 
-        paymentTimerInterval = setInterval(() => {
-            if (totalSeconds < 0) {
-                // Timer expired
-                clearInterval(paymentTimerInterval);
-                isExpired = true; 
-                $min.text('00');
-                $sec.text('00');
-                $('#timer-status-message').text('Booking Time Expired').addClass('text-red-400');
-                $('#timer-subtext').text('Please go back and try booking again.');
-                $('#confirm-btn').prop('disabled', true);
-                sessionStorage.removeItem('pendingBooking'); 
+        if (timer15MinInterval) clearInterval(timer15MinInterval);
+
+        timer15MinInterval = setInterval(() => {
+            if (totalSeconds <= 0) { // เปลี่ยนจาก < 0 เป็น <= 0 เพื่อความแม่นยำ
+                clearInterval(timer15MinInterval);
+                if (statusPollingInterval) clearInterval(statusPollingInterval);
+                
+                showView('final-view');
+                $('#final-title').text('Booking Expired');
+                $('#final-subtitle').text('Your booking was not approved in time. Redirecting...');
+                
+                sessionStorage.removeItem('pendingBooking');
+                setTimeout(() => { window.location.href = studentDashboardUrl; }, 3000);
                 return;
             }
             
             const minutes = Math.floor(totalSeconds / 60);
             const seconds = totalSeconds % 60;
-            
             $min.text(String(minutes).padStart(2, '0'));
             $sec.text(String(seconds).padStart(2, '0'));
-            
             totalSeconds--;
         }, 1000);
     }
 
-    // --- LOGIC ปุ่ม "Confirm" ---
-    $('#confirm-btn').on('click', function() {
-        if (isExpired) {
-            console.warn("Confirm button clicked, but timer has already expired.");
-            return;
-        }
+    // --- (2. Logic การนับถอยหลัง 60 นาที - แก้ไขให้รับค่าเริ่มต้น) ---
+    function startUsageTimer(initialSeconds) {
+        // ถ้าไม่ได้ส่งค่ามา ให้ใช้ 60 นาที (3600 วิ)
+        let totalSeconds = (initialSeconds !== undefined) ? initialSeconds : 60 * 60;
+        const $min = $('#timer-min-60');
+        const $sec = $('#timer-sec-60');
 
-        // 1. หยุดเวลานับถอยหลัง
-        if (paymentTimerInterval) {
-            clearInterval(paymentTimerInterval);
-        }
-        
-        // 2. ซ่อนหน้าจอ Timer
-        $('#timer-active').addClass('hidden');
-        // 3. แสดงหน้าจอสำเร็จ (นี่คือส่วนที่ทำให้เห็นหน้า Booking Confirmed)
-        $('#approval-success').removeClass('hidden');
-        
-        console.log('Booking Confirmed by User. Storing data:', pendingBooking);
-        
-        // 4. ล้างข้อมูลจองที่ค้างไว้
-        sessionStorage.removeItem('pendingBooking');
-        
-        // 5. Redirect ไปหน้า Dashboard (ที่ถูกต้อง)
-        const studentId = pendingBooking.user; // ดึง ID
-        const dashboardUrl = `/student/${studentId}/dashboard`; // สร้าง URL
-        
-        setTimeout(() => {
-             window.location.href = dashboardUrl; // ใช้ URL ที่ถูกต้อง
-        }, 4000); 
+        if (timer60MinInterval) clearInterval(timer60MinInterval);
+
+        timer60MinInterval = setInterval(() => {
+            if (totalSeconds <= 0) {
+                clearInterval(timer60MinInterval);
+                $('#finish-btn').text('Time is up! Finishing...').prop('disabled', true);
+                handleFinishBooking(); 
+                return;
+            }
+            
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            $min.text(String(minutes).padStart(2, '0'));
+            $sec.text(String(seconds).padStart(2, '0'));
+            totalSeconds--;
+        }, 1000);
+    }
+
+    // --- (3. Logic การ Polling ถามสถานะ - แก้ไขให้รับเวลาจาก Server) ---
+    function startStatusPolling(bId) {
+        if (statusPollingInterval) clearInterval(statusPollingInterval);
+
+        statusPollingInterval = setInterval(() => {
+            // console.log("Polling status...");
+            $.ajax({
+                type: "GET",
+                url: `/api/bookings/${bId}/status`,
+                dataType: "json",
+                success: function(response) {
+                    if (response.status === 'IN_PROGRESS') {
+                        // !!!! Manager อนุมัติแล้ว !!!!
+                        console.log("Status changed to IN_PROGRESS!");
+                        clearInterval(statusPollingInterval); 
+                        clearInterval(timer15MinInterval); 
+
+                        showView('in-progress-view');
+                        // เริ่มนับ 60 นาที โดยใช้เวลาที่เหลือจริงจาก Server
+                        startUsageTimer(response.remainingSeconds); 
+
+                    } else if (response.status === 'PENDING') {
+                        // ยัง PENDING อยู่... 
+                        // (Optional: คุณอาจจะอยากซิงค์เวลา 15 นาทีให้ตรงกับ Server ทุกครั้งที่ Poll ก็ได้
+                        // แต่ถ้านับถอยหลังใน JS ก็พอไหวอยู่ครับ เพื่อความเนียน)
+                    } else {
+                        // Cancelled / Completed
+                        clearInterval(statusPollingInterval);
+                        clearInterval(timer15MinInterval);
+                        sessionStorage.removeItem('pendingBooking');
+                        alert("Your booking was cancelled or already completed.");
+                        window.location.href = studentDashboardUrl;
+                    }
+                },
+                error: function() { console.error("Failed to poll status."); }
+            });
+        }, 5000); 
+    }
+
+    // --- (4. Logic ปุ่ม "Finish" - เหมือนเดิม) ---
+    function handleFinishBooking() {
+        if (!bookingId) return;
+        if (timer60MinInterval) clearInterval(timer60MinInterval);
+        if (statusPollingInterval) clearInterval(statusPollingInterval);
+
+        $.ajax({
+            type: "POST",
+            url: `/api/bookings/${bookingId}/complete`,
+            dataType: "json",
+            beforeSend: function(xhr) { if (csrfHeader && csrfToken) xhr.setRequestHeader(csrfHeader, csrfToken); },
+            success: function(response) {
+                // ล้างข้อมูลเดิม
+                sessionStorage.removeItem('pendingBooking');
+                
+                // เตรียมข้อมูลสำหรับหน้า Rating (แบบง่าย)
+                const ratingInfo = {
+                    bookingId: response.id,
+                    // ดึง ID นักเรียนเพื่อส่งไปพร้อมกับคะแนน
+                    userId: (response.user && response.user.id) ? response.user.id : studentId,
+                    machineName: (response.machine && response.machine.name) ? response.machine.name : "Machine"
+                };
+                sessionStorage.setItem('ratingInfo', JSON.stringify(ratingInfo));
+
+                // --- ย้ายไปหน้า Rating ทันที ---
+                window.location.href = '/rating'; 
+            },
+            error: function(xhr) {
+                let errorMsg = xhr.responseJSON ? (xhr.responseJSON.message || xhr.responseJSON.error) : 'Failed to complete.';
+                alert(errorMsg);
+                // ถ้า error ให้กลับ dashboard
+                window.location.href = studentDashboardUrl;
+            }
+        });
+    }
+
+    $('#finish-btn').on('click', function() {
+        $(this).text('Finishing...').prop('disabled', true);
+        handleFinishBooking();
     });
 
-
-    // --- INITIALIZATION (เมื่อหน้าเว็บโหลดเสร็จ) ---
+    // --- (5. INITIALIZATION - แก้ไขให้ใช้เวลาจาก Server ตอนโหลดหน้า) ---
     $(document).ready(function() {
-        // 1. ดึงข้อมูลการจองจาก sessionStorage
         const bookingDataJSON = sessionStorage.getItem('pendingBooking');
-
         if (!bookingDataJSON) {
-            console.warn('No pending booking found. Redirecting to booking page.');
-            window.location.href = 'booking.html'; // หรือ /booking
-            return;
+             // (เหมือนเดิม: ลองหา activeBooking เผื่อมี)
+             // ...
+             window.location.href = '/login'; return;
         }
-
-        // 2. แปลงข้อมูลกลับเป็น Object
         pendingBooking = JSON.parse(bookingDataJSON);
+        if (pendingBooking.id) { bookingId = pendingBooking.id; } 
+        else { window.location.href = '/login'; return; }
 
-        // 3. แสดงข้อมูล User และ Booking Details
-        if (pendingBooking && pendingBooking.user) { 
-            
-            const studentId = pendingBooking.user; // เช่น "6731503032"
-            const dashboardUrl = `/student/${studentId}/dashboard`;
-
-            // 1. อัปเดตลิงก์ของปุ่ม "Go to Dashboard Now"
-            $('#go-to-dashboard-btn').attr('href', dashboardUrl);
-            
-            // 2. แสดงชื่อ User
-            $('#user-info').text(`${pendingBooking.user} (Student)`).show();
-            
-            // 3. แสดงรายละเอียดการจอง
-            $('#detail-machine').text(pendingBooking.machineName || 'N/A');
-            $('#detail-slot').text(pendingBooking.slot || 'N/A');
-            
+        // ... (การตั้งค่า studentId, URL, และ Text ต่างๆ เหมือนเดิม) ...
+        if (pendingBooking.user && pendingBooking.user.studentId) {
+             studentId = pendingBooking.user.studentId;
+        } else if (pendingBooking.userId) { 
+             studentId = String(pendingBooking.userId);
         } else {
-             console.error("Booking data is invalid or missing user.");
-             // ควรเด้งกลับไปหน้า booking
-             window.location.href = 'booking.html'; 
-             return;
+             studentId = "default";
         }
+        if (studentId.includes("{")) { try { studentId = pendingBooking.user.studentId; } catch(e) { studentId = "error"; } }
 
-        // 4. เริ่มจับเวลา 15 นาที
-        startPaymentTimer();
+        studentDashboardUrl = `/student/${studentId}/dashboard`;
+        $('#nav-dashboard-link').attr('href', studentDashboardUrl);
+        $('#nav-booking-link').attr('href', '/student/' + studentId + '/booking');
+        $('#user-info').text(`${studentId} (Student)`).show();
+        $('#detail-machine').text(pendingBooking.machineName || (pendingBooking.machine ? pendingBooking.machine.name : 'N/A'));
+        // จัดรูปแบบเวลาให้สวยงามขึ้นเล็กน้อย ถ้าทำได้
+        let slotShow = pendingBooking.slot || (pendingBooking.bookingDate ? pendingBooking.bookingDate.replace('T', ' ') : 'N/A');
+        $('#detail-slot').text(slotShow);
+        $('#go-to-dashboard-btn').attr('href', studentDashboardUrl);
+
+        // --- เรียก API ครั้งแรก เพื่อดูสถานะและ "เวลาที่เหลือจริง" ---
+        $.ajax({
+            type: "GET",
+            url: `/api/bookings/${bookingId}/status`,
+            dataType: "json",
+            success: function(response) {
+                if (response.status === 'PENDING') {
+                    showView('pending-view');
+                    // เริ่มนับ 15 นาที โดยใช้เวลาที่เหลือจริงจาก Server
+                    startPendingTimer(response.remainingSeconds); 
+                    startStatusPolling(bookingId);
+                } else if (response.status === 'IN_PROGRESS') {
+                    showView('in-progress-view');
+                    // เริ่มนับ 60 นาที โดยใช้เวลาที่เหลือจริงจาก Server
+                    startUsageTimer(response.remainingSeconds); 
+                } else {
+                    showView('final-view');
+                    $('#final-title').text('Booking Not Active');
+                    $('#final-subtitle').text('Redirecting...');
+                    sessionStorage.removeItem('pendingBooking');
+                    setTimeout(() => { window.location.href = studentDashboardUrl; }, 3000);
+                }
+            },
+            error: function() {
+                alert("Error: Could not retrieve booking status.");
+                window.location.href = studentDashboardUrl;
+            }
+        });
     });
 </script>
+
 </body>
 </html>
-

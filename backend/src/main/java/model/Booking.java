@@ -1,7 +1,6 @@
 package model;
 
 import java.time.LocalDateTime;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -15,17 +14,16 @@ import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
-//
+
 @Entity
 @Table(name = "bookings")
 public class Booking {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable  = false)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -35,18 +33,21 @@ public class Booking {
     @Column(nullable = false)
     private LocalDateTime bookingDate;
 
+    // --- เพิ่มฟิลด์ใหม่: เวลาหมดอายุของการรออนุมัติ 15 นาที ---
+    @Column(nullable = true) // อนุญาตให้เป็น null ได้ ถ้าสถานะไม่ใช่ PENDING
+    private LocalDateTime confirmationExpiryTime;
+    // --------------------------------------------------------
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BookingStatus status;
 
     @Column(nullable = false)
     private Double amount;
-
     private String service;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable  = false, updatable = false)
     private LocalDateTime createdAt;
-
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
@@ -55,7 +56,7 @@ public class Booking {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
         if (status == null) {
-            status = BookingStatus.PENDING;
+            status = BookingStatus.PENDING; // สถานะเริ่มต้นคือ PENDING [cite: 1029]
         }
     }
 
@@ -64,7 +65,8 @@ public class Booking {
         updatedAt = LocalDateTime.now();
     }
 
-    // Getters and Setters
+    // --- Getters and Setters (ส่วนที่เพิ่ม/ปรับปรุง) ---
+
     public Long getId() {
         return id;
     }
@@ -96,6 +98,16 @@ public class Booking {
     public void setBookingDate(LocalDateTime bookingDate) {
         this.bookingDate = bookingDate;
     }
+
+    // --- Getter/Setter สำหรับฟิลด์ใหม่ ---
+    public LocalDateTime getConfirmationExpiryTime() {
+        return confirmationExpiryTime;
+    }
+
+    public void setConfirmationExpiryTime(LocalDateTime confirmationExpiryTime) {
+        this.confirmationExpiryTime = confirmationExpiryTime;
+    }
+    // ------------------------------------
 
     public BookingStatus getStatus() {
         return status;
@@ -137,11 +149,10 @@ public class Booking {
         this.updatedAt = updatedAt;
     }
 
-    // Helper method for template
+    // Helper methods (เดิม)
     public String getCustomerName() {
         return user != null ? user.getName() : "Unknown";
     }
-
     public String getCustomerInitial() {
         if (user != null && user.getName() != null && !user.getName().isEmpty()) {
             return user.getName().substring(0, 1).toUpperCase();

@@ -65,4 +65,8 @@ public interface MachineRepository extends JpaRepository<Machine, Long> {
 
     @Query("SELECT m FROM Machine m WHERE m.pricePerHour BETWEEN :minPrice AND :maxPrice ORDER BY m.pricePerHour ASC")
     List<Machine> findByPriceRange(@Param("minPrice") Double minPrice, @Param("maxPrice") Double maxPrice);
+    @Query("SELECT m FROM Machine m WHERE m.status NOT IN ('MAINTENANCE', 'OUT_OF_SERVICE') ORDER BY m.id ASC")
+    List<Machine> findAllFunctionalMachines();
+
+
 }

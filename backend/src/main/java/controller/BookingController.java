@@ -1,11 +1,10 @@
 package controller;
 
-import java.time.LocalDateTime; // (ต้องมี Import นี้)
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,12 +13,11 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PutMapping; // (ตรวจสอบว่ามี Import นี้)
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import model.Booking;
 import model.BookingStatus;
 import service.BookingService;
@@ -32,40 +30,23 @@ public class BookingController {
     @Autowired
     private BookingService bookingService;
 
-    // (เมธอดอื่นๆ ... getAllBookings, getBookingById, ฯลฯ ... ไม่ต้องแก้ไข)
-    // ...
-    // ...
-
-    // --- ⬇️⬇️⬇️ นี่คือเมธอดที่ต้องแก้ไข ⬇️⬇️⬇️ ---
-    // Get bookings by date range
+    // (ส่วนนี้เหมือนเดิม)
     @GetMapping("/date-range")
     public ResponseEntity<List<Booking>> getBookingsByDateRange(
-            @RequestParam String startDate, // 1. เปลี่ยนจาก LocalDateTime เป็น String
-            @RequestParam String endDate) {   // 2. เปลี่ยนจาก LocalDateTime เป็น String
-        
+            @RequestParam String startDate,
+            @RequestParam String endDate) {
         try {
-            // 3. แปลง String เป็น LocalDateTime ด้วยตัวเอง
             LocalDateTime start = LocalDateTime.parse(startDate);
             LocalDateTime end = LocalDateTime.parse(endDate);
-
-            // 4. เรียกใช้ Service ด้วยข้อมูลที่แปลงแล้ว
             List<Booking> bookings = bookingService.getBookingsByDateRange(start, end);
             return ResponseEntity.ok(bookings);
-            
         } catch (Exception e) {
-            // (ถ้าแปลงค่าพลาด หรือมีปัญหาอื่น)
-            e.printStackTrace(); // (ดู Error ใน Console)
+            e.printStackTrace();
             return ResponseEntity.badRequest().build();
         }
     }
-    // --- ⬆️⬆️⬆️ จบส่วนที่แก้ไข ⬆️⬆️⬆️ ---
 
-
-    // (เมธอดอื่นๆ ... startBooking, completeBooking, ฯลฯ ... ไม่ต้องแก้ไข)
-    // ...
-    // ...
-
-    // (ส่วนที่เหลือของไฟล์)
+    // (เมธอดอื่นๆ ... getAllBookings, getBookingById, ฯลฯ.... เหมือนเดิม)
     @GetMapping
     public ResponseEntity<List<Booking>> getAllBookings() {
         List<Booking> bookings = bookingService.getAllBookings();
@@ -139,18 +120,79 @@ public class BookingController {
         }
         return ResponseEntity.notFound().build();
     }
- 
-    @PostMapping("/{id}/start")
-    public ResponseEntity<?> startBooking(@PathVariable Long id) {
+
+    // --- (นี่คือส่วนที่แก้ไข) ---
+    // เปลี่ยนจาก @PostMapping เป็น @PutMapping
+   @PostMapping("/{id}/approve")
+    public ResponseEntity<?> approveBooking(@PathVariable Long id) {
+        System.out.println("🔥 MANAGER กำลังกดอนุมัติ Booking ID: " + id);
+
         try {
-            Booking updatedBooking = bookingService.startBooking(id);
+            Booking updatedBooking = bookingService.approveBooking(id);
+            System.out.println("✅ อนุมัติสำเร็จใน DB! สถานะใหม่คือ: " + updatedBooking.getStatus());
+
             if (updatedBooking != null) {
-                return ResponseEntity.ok(updatedBooking);
+                // --- ⬇️ แก้ไขตรงนี้ ⬇️ ---
+                // แทนที่จะส่ง updatedBooking กลับไปทั้งก้อน (ซึ่งทำให้เกิด Error)
+                // เราสร้าง Map ส่งกลับไปเฉพาะข้อมูลที่จำเป็นพอ
+                Map<String, Object> response = new HashMap<>();
+                response.put("id", updatedBooking.getId());
+                response.put("status", updatedBooking.getStatus());
+                response.put("message", "Approve Success");
+                
+                return ResponseEntity.ok(response);
+                // --- ⬆️ จบส่วนที่แก้ไข ⬆️ ---
             }
             return ResponseEntity.notFound().build();
+            
         } catch (IllegalStateException e) {
-            return ResponseEntity.badRequest().body(createErrorResponse(e.getMessage(), "INVALID_STATUS"));
+            System.out.println("❌ เกิดข้อผิดพลาด (IllegalState): " + e.getMessage());
+            // e.printStackTrace(); // เอาออกได้ถ้าไม่อยากรก Console
+
+            return ResponseEntity.badRequest().body(createErrorResponse(e.getMessage(),
+                    "INVALID_STATUS"));
+        } catch (Exception e) {
+             System.out.println("❌❌ ERROR ไม่คาดคิด: " + e.getMessage());
+             e.printStackTrace();
+             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+    // --- (ส่วนนี้เหมือนเดิม) ---
+    @GetMapping("/{id}/status")
+    public ResponseEntity<?> getBookingStatus(@PathVariable Long id) {
+        Optional<Booking> bookingOpt = bookingService.getBookingById(id);
+        if (bookingOpt.isPresent()) {
+            Booking booking = bookingOpt.get();
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", booking.getStatus().name());
+
+            // คำนวณเวลาที่เหลือ (หน่วย: วินาที)
+            long remainingSeconds = 0;
+            LocalDateTime now = LocalDateTime.now();
+
+            if (booking.getStatus() == BookingStatus.PENDING) {
+                // ถ้า PENDING: เวลาที่เหลือ = 15 นาที - เวลาที่ผ่านไปแล้วตั้งแต่กดจอง
+                long elapsedSeconds = java.time.Duration.between(booking.getCreatedAt(), now).getSeconds();
+                remainingSeconds = (15 * 60) - elapsedSeconds;
+
+            } else if (booking.getStatus() == BookingStatus.IN_PROGRESS) {
+                // ถ้า IN_PROGRESS: เวลาที่เหลือ = 60 นาที - เวลาที่ผ่านไปแล้วตั้งแต่เริ่มใช้งาน
+                if (booking.getMachine() != null && booking.getMachine().getUsageStartTime() != null) {
+                    long elapsedSeconds = java.time.Duration.between(booking.getMachine().getUsageStartTime(), now)
+                            .getSeconds();
+                    remainingSeconds = (60 * 60) - elapsedSeconds;
+                } else {
+                    // กรณี Error ไม่เจอเวลาเริ่ม ให้ Default ไปก่อน
+                    remainingSeconds = 60 * 60;
+                }
+            }
+
+            // ถ้าเวลาติดลบ (หมดเวลาแล้ว) ให้เป็น 0
+            response.put("remainingSeconds", Math.max(0, remainingSeconds));
+
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @PostMapping("/{id}/complete")
@@ -162,10 +204,12 @@ public class BookingController {
             }
             return ResponseEntity.notFound().build();
         } catch (IllegalStateException e) {
-            return ResponseEntity.badRequest().body(createErrorResponse(e.getMessage(), "INVALID_STATUS"));
+            return ResponseEntity.badRequest().body(createErrorResponse(e.getMessage(),
+                    "INVALID_STATUS"));
         }
     }
 
+    // (ส่วนที่เหลือของไฟล์)
     @GetMapping("/user/{userId}/completed")
     public ResponseEntity<List<Booking>> getCompletedBookingsForRating(@PathVariable Long userId) {
         List<Booking> bookings = bookingService.getCompletedBookingsForRating(userId);

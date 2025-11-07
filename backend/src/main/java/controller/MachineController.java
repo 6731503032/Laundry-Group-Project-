@@ -36,7 +36,9 @@ public class MachineController {
 
     @GetMapping("/available")
     public ResponseEntity<List<Machine>> getAvailableMachines() {
-        return ResponseEntity.ok(machineManagementService.getAvailableMachines());
+        // (เดิม) return ResponseEntity.ok(machineManagementService.getAvailableMachines());
+        // (ใหม่) เรียกใช้ getFunctionalMachines() แทน เพื่อให้โชว์เครื่องที่ IN_USE ด้วย
+        return ResponseEntity.ok(machineManagementService.getFunctionalMachines());
     }
 
     @GetMapping("/{machineId}/detail")

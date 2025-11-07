@@ -334,4 +334,11 @@ public class MachineManagementService {
     public List<Machine> getMachinesByCurrentUser(Long userId) {
         return machineRepository.findByCurrentUserId(userId);
     }
+
+    @Transactional(readOnly = true)
+    public List<Machine> getFunctionalMachines() {
+        return machineRepository.findAllFunctionalMachines();
+    }
+
+    
 }
