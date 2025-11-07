@@ -201,12 +201,12 @@
 <script th:inline="javascript">
     const currentUserName = /*[[${currentUser.name}]]*/ "User";
     const currentUserId = /*[[${currentUser.id}]]*/ null;
-    const currentStudentId = /*[[${currentUser.studentId}]]*/ null; // <-- THIS IS THE FIX
+    const currentStudentId = /*[[${currentUser.studentId}]]*/ null;
 </script>
 
 <script>
     // --- GLOBAL DATA & STATE ---
-    let pendingBooking = null; // Object { userId, machineId, machineName, user, startTime, slot }
+    let pendingBooking = null;
     const timeSlots = [
         "08:00", "09:00", "10:00", "11:00",
         "12:00", "13:00", "14:00", "15:00", "16:00"
@@ -244,7 +244,7 @@
         const yyyy = today.getFullYear();
         const mm = String(today.getMonth() + 1).padStart(2, '0');
         const dd = String(today.getDate()).padStart(2, '0');
-        return `${yyyy}-${mm}-${dd}`; // e.g., "2025-11-03"
+        return `${yyyy}-${mm}-${dd}`;
     }
 
     function fetchAvailableMachines() {
@@ -303,14 +303,12 @@
                     const isTaken = bookingLookup.has(lookupKey);
                     
                     if (isTaken) {
-                        // --- Show "Taken" button ---
                         slotButtonsHTML += `
                             <button class="slot-button-taken" disabled>
                                 ${slotTime}
                             </button>
                         `;
                     } else {
-                        // --- Show "Available" button ---
                         slotButtonsHTML += `
                             <button class="slot-button" 
                                 data-machine-id="${machine.id}"
@@ -321,9 +319,28 @@
                         `;
                     }
                 });
+
+                // --- ตรงนี้คือส่วนที่เพิ่ม Rating ---
                 const machineCardHTML = `
                     <div class="card">
-                        <h3 class="text-xl font-bold text-gray-800 mb-4">${machine.name} (${machine.machineNumber})</h3>
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-xl font-bold">
+                                <a href="/machine/${machine.id}" class="text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1" title="View Details">
+                                    ${machine.name}
+                                    <span class="text-gray-500 font-normal text-base ml-1">(${machine.machineNumber})</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 ml-1">
+                                      <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                    </svg>
+                                </a>
+                            </h3>
+                            <div class="flex items-center bg-amber-50 px-2 py-1 rounded-lg border border-amber-100 shadow-sm" title="Average User Rating">
+                                <span class="text-amber-400 mr-1">★</span>
+                                <span class="font-bold text-sm text-gray-700">
+                                    ${machine.averageRating ? Number(machine.averageRating).toFixed(1) : 'N/A'}
+                                </span>
+                            </div>
+                        </div>
+
                         <div class="grid grid-cols-4 gap-2">
                             ${slotButtonsHTML}
                         </div>
@@ -338,8 +355,6 @@
     }
 
     // --- Booking Logic ---
-
-    // 1. Handle click on a time slot button
     $("#machine-list").on("click", ".slot-button", function () {
         const machineId = $(this).data("machine-id");
         const machineName = $(this).data("machine-name");
@@ -348,10 +363,9 @@
         const startHour = parseInt(startTime.split(":")[0]);
         const endTime = `${String(startHour + 1).padStart(2, "0")}:00`;
 
-        // (This is the local object we build)
         pendingBooking = {
             userId: currentUserId,
-            studentId: currentStudentId, // <-- THIS IS THE FIX
+            studentId: currentStudentId,
             machineId: machineId,
             machineName: machineName,
             user: currentUserName,
@@ -367,13 +381,11 @@
         showView("confirm-view");
     });
 
-    // 2. Handle Cancel button
     $("#cancel-booking-btn").on("click", function () {
         pendingBooking = null;
         showView("booking-view");
     });
 
-    // 3. Handle Submit button -> Call the API
     $("#submit-booking-btn").on("click", function () {
         if (!pendingBooking) return;
 
@@ -384,7 +396,7 @@
             user: { id: currentUserId }, 
             machine: { id: pendingBooking.machineId }, 
             bookingDate: bookingDateTime, 
-            amount: 50.0, // (Default price)
+            amount: 50.0,
             service: "WASH"
         };
 
@@ -395,17 +407,12 @@
             data: JSON.stringify(bookingData),
             dataType: "json",
             success: function(response) {
-                // (Success! 'response' is the Booking Object from the server)
                 showMessage("Booking submitted! Redirecting...", "success");
-
-                // (1. Combine details from the server (like ID) with details from the page (like slot))
                 const dataForTimer = { ...pendingBooking, ...response };
-
-                // (2. Save the combined object for timer.html to use)
                 sessionStorage.setItem("pendingBooking", JSON.stringify(dataForTimer));
                 
                 setTimeout(() => {
-                    window.location.href = "/timer"; // (Go to timer page)
+                    window.location.href = "/timer";
                 }, 1500);
             },
             error: function(xhr) {
@@ -417,7 +424,6 @@
                 
                 setTimeout(() => {
                     showView("booking-view");
-                    // (Important) Reload the schedule
                     renderMachineSlots();
                 }, 2000);
             }
@@ -429,11 +435,7 @@
         if (!currentUserId && currentUserName === "User") {
             currentUserName = "Guest";
             console.warn("Could not identify user. Proceeding as Guest.");
-        } else if (!currentUserId) {
-            console.warn("User ID is null, but name is present.");
         }
-        
-        // Load machines and schedule immediately
         renderMachineSlots();
     });
 </script>
