@@ -52,7 +52,7 @@
                             <div><span class="text-gray-500">Brand:</span> <span class="font-medium" th:text="${machine.brand ?: 'N/A'}">Samsung</span></div>
                             <div><span class="text-gray-500">Model:</span> <span class="font-medium" th:text="${machine.model ?: 'N/A'}">WF-5000</span></div>
                             <div><span class="text-gray-500">Type:</span> <span class="font-medium" th:text="${machine.machineType}">WASHER</span></div>
-                            <div><span class="text-gray-500">Capacity:</span> <span class="font-medium" th:text="${machine.capacityKg != null ? machine.capacityKg + ' kg' : 'N/A'}">10 kg</span></div>
+                            <div><span class="text-gray-500">Capacity:</span> <span class="font-medium" th:text="${machine.capacity != null ? machine.capacity + ' kg' : 'N/A'}">10 kg</span></div>
                         </div>
                     </div>
                     
@@ -74,11 +74,12 @@
                     </p>
                 </div>
 
-                <a th:if="${machine.status == 'AVAILABLE'}"
+                <a th:if="${machine.status == 'AVAILABLE' and currentUser != null}"
                    th:href="@{/student/{uid}/booking?machineId={mid}(uid=${currentUser.studentId}, mid=${machine.id})}"
                    class="block w-full py-4 bg-blue-600 hover:bg-blue-700 text-white text-center font-bold rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                     Book This Machine Now
                 </a>
+                
                 <button th:if="${machine.status != 'AVAILABLE'}" disabled
                         class="block w-full py-4 bg-gray-300 text-gray-500 text-center font-bold rounded-xl cursor-not-allowed">
                     Currently Unavailable
@@ -89,13 +90,13 @@
                     <div class="space-y-4 max-h-64 overflow-y-auto pr-2">
                         <div th:each="review : ${recentReviews}" class="bg-gray-50 p-4 rounded-lg">
                             <div class="flex justify-between mb-1">
-                                <span class="font-semibold text-sm" th:text="${review.user.name}">User Name</span>
+                                <span class="font-semibold text-sm" th:text="${review.userName}">User Name</span>
                                 <div class="flex text-amber-400 text-sm">
                                     <span th:each="i : ${#numbers.sequence(1, 5)}" 
                                           th:text="${i <= review.rating ? '★' : '☆'}"></span>
                                 </div>
                             </div>
-                            <p class="text-gray-600 text-sm italic" th:text="${'"' + review.reviewText + '"'}">"Great machine!"</p>
+                            <p class="text-gray-600 text-sm italic" th:text="|&quot;${review.reviewText}&quot;|">"Great machine!"</p>
                             <p class="text-xs text-gray-400 mt-2" th:text="${#temporals.format(review.createdAt, 'dd MMM yyyy')}">Date</p>
                         </div>
                         <p th:if="${#lists.isEmpty(recentReviews)}" class="text-gray-500 text-sm italic">No reviews yet.</p>
