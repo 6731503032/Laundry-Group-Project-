@@ -1,9 +1,6 @@
-TO DO:
-FIX THIS 
-<img width="640" height="547" alt="image" src="https://github.com/user-attachments/assets/22b6d746-9a30-46f2-8ca1-3a139eb16a90" />
+SRS document: https://mfuacth-my.sharepoint.com/:w:/g/personal/6731503032_lamduan_mfu_ac_th/EXVy3TEnZflPvp_BWjoEX9MBISLqiwNg3KYqRwCXWIWZWg?e=61WvaJ
 
-<img width="1300" height="315" alt="image" src="https://github.com/user-attachments/assets/cc89781d-a4a6-4c61-a481-9eaca3fe4e37" />
-
+REFERENCE FOR FUNCTIONAL REQUIREMENTTS AND STUFFS IS GIVEN IN PDF FILE
 
 
 
@@ -35,6 +32,7 @@ SYSTEM INTERACTION BETWEEN MANAGER,REGISTER USER AND BOOK MACHINE!
 
  Add Exception handling/Validation/Api
 ```
+
 
 
 
