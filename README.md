@@ -1,7 +1,9 @@
 SRS document: https://mfuacth-my.sharepoint.com/:w:/g/personal/6731503032_lamduan_mfu_ac_th/EXVy3TEnZflPvp_BWjoEX9MBISLqiwNg3KYqRwCXWIWZWg?e=61WvaJ
 REFERENCE FOR FUNCTIONAL REQUIREMENTTS AND STUFFS IS GIVEN IN PDF FILE
+
+
 Testcase: https://docs.google.com/document/d/19IPBqxg8vo9AKMhmAK6XzaB3JnzYQ7Isb255os5MSUA/edit?usp=sharing
-REFERENCE FOR FUNCTIONAL REQUIREMENTTS AND STUFFS IS GIVEN IN PDF FILE
+(PLEASE USE FROM REQUIREMENTS PROVIDED in THE PDF. DONT MAKE NEW ONE)
 
 DATBASE DOCUMENT: https://docs.google.com/document/d/1wJjGdGH5b7nIplDi8Lw9mYiGuklHvRKiE2tJmfjd5So/edit?usp=sharing
 (I WORK ON THIS)
@@ -58,6 +60,7 @@ SYSTEM INTERACTION BETWEEN MANAGER,REGISTER USER AND BOOK MACHINE!
 
  Add Exception handling/Validation/Api
 ```
+
 
 
 
