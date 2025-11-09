@@ -1,4 +1,6 @@
 PLEASE REFERENCE TO **LaundryManagementSystem.pdf** DONT JUST PUT EVERYTHING IN AI!
+-
+-
 
 SRS document: https://mfuacth-my.sharepoint.com/:w:/g/personal/6731503032_lamduan_mfu_ac_th/EXVy3TEnZflPvp_BWjoEX9MBISLqiwNg3KYqRwCXWIWZWg?e=61WvaJ
 REFERENCE FOR FUNCTIONAL REQUIREMENTTS AND STUFFS IS GIVEN IN PDF FILE
@@ -62,6 +64,7 @@ SYSTEM INTERACTION BETWEEN MANAGER,REGISTER USER AND BOOK MACHINE!
 
  Add Exception handling/Validation/Api
 ```
+
 
 
 
