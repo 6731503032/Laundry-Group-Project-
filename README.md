@@ -3,6 +3,10 @@ REFERENCE FOR FUNCTIONAL REQUIREMENTTS AND STUFFS IS GIVEN IN PDF FILE
 Testcase: https://docs.google.com/document/d/19IPBqxg8vo9AKMhmAK6XzaB3JnzYQ7Isb255os5MSUA/edit?usp=sharing
 REFERENCE FOR FUNCTIONAL REQUIREMENTTS AND STUFFS IS GIVEN IN PDF FILE
 
+DATBASE DOCUMENT: https://docs.google.com/document/d/1wJjGdGH5b7nIplDi8Lw9mYiGuklHvRKiE2tJmfjd5So/edit?usp=sharing
+
+
+
 
 1/2 person WORK ON UPLOADING THIS TO GOOGLE CLOUD!!!!
 -
@@ -54,6 +58,7 @@ SYSTEM INTERACTION BETWEEN MANAGER,REGISTER USER AND BOOK MACHINE!
 
  Add Exception handling/Validation/Api
 ```
+
 
 
 
