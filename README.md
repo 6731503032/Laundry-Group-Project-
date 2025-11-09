@@ -4,8 +4,23 @@ Testcase: https://docs.google.com/document/d/19IPBqxg8vo9AKMhmAK6XzaB3JnzYQ7Isb2
 REFERENCE FOR FUNCTIONAL REQUIREMENTTS AND STUFFS IS GIVEN IN PDF FILE
 
 
-
 1/2 person WORK ON UPLOADING THIS TO GOOGLE CLOUD!!!!
+-
+-
+-
+-
+-
+-
+-
+--
+-
+-
+--
+-
+-
+-
+
+
 
 
 
@@ -39,6 +54,7 @@ SYSTEM INTERACTION BETWEEN MANAGER,REGISTER USER AND BOOK MACHINE!
 
  Add Exception handling/Validation/Api
 ```
+
 
 
 
