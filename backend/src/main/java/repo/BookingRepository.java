@@ -83,5 +83,4 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
         @Param("studentId") String studentId, 
         @Param("statusNames") List<String> statusNames
     );
-    // --- (END OF FIX) ---
 }
