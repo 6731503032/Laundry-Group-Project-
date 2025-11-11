@@ -218,7 +218,7 @@
                 <div class="card !bg-blue-500 text-white"><p class="text-sm opacity-80">Total Machines</p><p class="text-3xl font-bold mt-1" th:text="${managerStats.totalMachines}">0</p></div>
                 <div class="card !bg-emerald-500 text-white"><p class="text-sm opacity-80">Machines Available</p><p class="text-3xl font-bold mt-1" th:text="${managerStats.availableMachines}">0</p></div>
                 <div class="card !bg-amber-500 text-white"><p class="text-sm opacity-80">Machines In Use</p><p class="text-3xl font-bold mt-1" th:text="${managerStats.inUseMachines}">0</p></div>
-                <div class="card !bg-red-500 text-white"><p class="text-sm opacity-80">Maintenance / Offline</p><p class="text-3xl font-bold mt-1" th:text="${managerStats.maintenanceMachines}">0</p></div>
+                <div class="card !bg-red-500 text-white"><p class="text-sm opacity-80">Out of Service</p><p class="text-3xl font-bold mt-1" th:text="${managerStats.maintenanceMachines}">0</p></div>
             </div>
             
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
@@ -399,7 +399,7 @@
         let hasAvailableMachines = false;
 
         allMachines.forEach(machine => {
-            if (machine.status === 'MAINTENANCE' || machine.status === 'OUT_OF_SERVICE') { return; }
+            if (machine.status === 'OUT_OF_SERVICE') { return; }
             hasAvailableMachines = true;
             let slotButtonsHTML = "";
 
@@ -473,7 +473,7 @@
         });
 
         if (!hasAvailableMachines) {
-            $list.html('<p class="text-gray-500">All machines are currently under maintenance or out of service.</p>');
+            $list.html('<p class="text-gray-500">All machines are currently out of service.</p>');
         }
     }
 

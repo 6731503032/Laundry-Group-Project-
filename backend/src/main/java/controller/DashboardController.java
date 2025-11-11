@@ -135,7 +135,6 @@ public class DashboardController {
         long inUseMachines = allMachines.stream().filter(m -> 
                 AppConstants.STATUS_IN_USE.equals(m.getStatus())).count();
         long maintenanceMachines = allMachines.stream().filter(m -> 
-                AppConstants.STATUS_MAINTENANCE.equals(m.getStatus()) || 
                 AppConstants.STATUS_OUT_OF_SERVICE.equals(m.getStatus())).count();
         long totalUsers = allUsers.size();
         
@@ -154,7 +153,6 @@ public class DashboardController {
         
         model.addAttribute("allStatuses", List.of(
                 AppConstants.STATUS_AVAILABLE,
-                AppConstants.STATUS_MAINTENANCE,
                 AppConstants.STATUS_OUT_OF_SERVICE
         ));
         

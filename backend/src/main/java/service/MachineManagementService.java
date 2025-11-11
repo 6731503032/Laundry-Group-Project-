@@ -290,10 +290,10 @@ public class MachineManagementService {
 
     /**
      * Updates only the machine status (Manager operation).
-     * Automatically clears current user and usage time if status is MAINTENANCE or OUT_OF_SERVICE.
+     * Automatically clears current user and usage time if status is OUT_OF_SERVICE.
      * 
      * @param machineId Machine ID to update
-     * @param status New status (AVAILABLE, IN_USE, MAINTENANCE, OUT_OF_SERVICE)
+     * @param status New status (AVAILABLE, IN_USE, OUT_OF_SERVICE)
      * @return Updated machine
      * @throws IllegalArgumentException if machine not found or status is empty
      */
@@ -307,8 +307,7 @@ public class MachineManagementService {
 
         machine.setStatus(status);
 
-        if (status.equals(AppConstants.STATUS_MAINTENANCE) || 
-            status.equals(AppConstants.STATUS_OUT_OF_SERVICE)) {
+        if (status.equals(AppConstants.STATUS_OUT_OF_SERVICE)) {
             machine.setCurrentUser(null);
             machine.setUsageStartTime(null);
         }
@@ -414,8 +413,8 @@ public class MachineManagementService {
     }
 
     /**
-     * Retrieves all functional machines (non-maintenance machines).
-     * Returns machines with status: AVAILABLE or IN_USE (excludes MAINTENANCE and OUT_OF_SERVICE).
+     * Retrieves all functional machines (non-out-of-service machines).
+     * Returns machines with status: AVAILABLE or IN_USE (excludes OUT_OF_SERVICE).
      * 
      * @return List of functional machines
      */
