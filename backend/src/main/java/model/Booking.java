@@ -3,29 +3,37 @@ package model;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 @Entity
 @Table(name = "bookings")
+@JsonIdentityInfo(
+  generator = ObjectIdGenerators.PropertyGenerator.class, 
+  property = "id",
+  scope = Booking.class // <-- ADD THIS LINE
+)
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable  = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -35,36 +43,28 @@ public class Booking {
     @Column(nullable = false)
     private LocalDateTime bookingDate;
 
-    // --- (This field is fine) ---
-    @Column(nullable = true) // Allow null if status is not PENDING
+    @Column(nullable = true)
     private LocalDateTime confirmationExpiryTime;
-    // --------------------------------------------------------
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private BookingStatus status;
 
     @Column(nullable = false)
     private Double amount;
     private String service;
 
-    @Column(nullable  = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    // --- (NEW) FIELD ADDED TO FIX RATING PAGE ERROR ---
     @Column(name = "rating", nullable = true)
     private Integer rating;
-    // --------------------------------------------------
 
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
-        if (status == null) {
-            status = BookingStatus.PENDING;
-        }
     }
 
     @PreUpdate
@@ -119,6 +119,13 @@ public class Booking {
     }
 
     public void setStatus(BookingStatus status) {
+        if (status == null) {
+            if (this.status != null) {
+                this.status.setBooking(null);
+            }
+        } else {
+            status.setBooking(this);
+        }
         this.status = status;
     }
 
@@ -154,7 +161,6 @@ public class Booking {
         this.updatedAt = updatedAt;
     }
 
-    // --- (NEW) GETTER/SETTER FOR RATING ---
     public Integer getRating() {
         return rating;
     }
@@ -162,12 +168,13 @@ public class Booking {
     public void setRating(Integer rating) {
         this.rating = rating;
     }
-    // --------------------------------------
+    
+    // --- Helper methods ---
 
-    // Helper methods
     public String getCustomerName() {
         return user != null ? user.getName() : "Unknown";
     }
+
     public String getCustomerInitial() {
         if (user != null && user.getName() != null && !user.getName().isEmpty()) {
             return user.getName().substring(0, 1).toUpperCase();

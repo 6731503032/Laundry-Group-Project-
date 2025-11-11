@@ -13,8 +13,18 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 @Entity
 @Table(name = "machines")
+@JsonIdentityInfo(
+  generator = ObjectIdGenerators.PropertyGenerator.class, 
+  property = "id",
+  scope = Machine.class // <-- ADD THIS LINE
+)
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Machine {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,11 +41,11 @@ public class Machine {
     private String description;
     
     // Machine specifications
-    private String machineType;      // e.g., "Washing Machine"
-    private String brand;            // e.g., "LG", "Samsung"
-    private String model;            // e.g., "WM-3500"
-    private String capacity;         // e.g., "8kg", "6L"
-    private String features;         // JSON or comma-separated features
+    private String machineType;     // e.g., "Washing Machine"
+    private String brand;           // e.g., "LG", "Samsung"
+    private String model;           // e.g., "WM-3500"
+    private String capacity;        // e.g., "8kg", "6L"
+    private String features;        // JSON or comma-separated features
 
     // Pricing and rates
     @Column(nullable = false)

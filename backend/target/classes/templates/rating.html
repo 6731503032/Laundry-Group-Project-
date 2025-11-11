@@ -255,7 +255,11 @@
             </svg>
             <h2 class="text-3xl font-bold mb-2 text-blue-600">Thank You!</h2>
             <p class="text-lg text-gray-700">Your feedback helps us improve.</p>
-        </div>
+            
+            <button type="button" id="close-thank-you-btn" class="w-full submit-btn secondary mt-6">
+                Close
+            </button>
+            </div>
 
     </div>
 </div>
@@ -264,61 +268,79 @@
 $(document).ready(function() {
 
     // --- 1. Get Student ID and CSRF Token ---
-    
-    // This 'studentIdString' is the string (e.g., 6731503032) from the <body> tag
     const studentIdString = $('body').data('student-id'); 
-    
-    // This 'primaryUserId' is the database primary key (e.g., 1)
-    // We get it from the 'student' object passed by the controller
     const primaryUserId = /*[[${student.id}]]*/ null;
-    
-    // Get CSRF tokens from the new meta tags in <head>
     const csrfToken = $("meta[name='_csrf']").attr("content");
     const csrfHeader = $("meta[name='_csrf_header']").attr("content");
 
-    // --- 2. Modal Variables ---
-    let currentRating = 0;
+    // --- 2. (อัปเกรด) Modal Variables ---
     const $modal = $('#rating-modal');
     const $ratingForm = $('#rating-form');
     const $thankYouMsg = $('#thank-you-msg');
     const $stars = $modal.find('.star-rating .star');
     const $ratingError = $('#rating-error');
-
-    // --- 3. Modal Open/Close Logic ---
     
-    // Open Modal when clicking [ให้คะแนน]
+    // (เพิ่ม) ดึงปุ่ม Submit และข้อความเดิมมาเก็บไว้
+    const $submitBtn = $ratingForm.find('button[type="submit"]');
+    const originalText = $submitBtn.text();
+    let autoCloseTimer = null; // (เพิ่ม) ตัวแปรสำหรับเก็บ timer
+
+
+    // --- 3. (อัปเกรด) สร้างฟังก์ชัน Close กลาง ---
+    function closeModal() {
+       // $modal.addClass('hidden');
+        $modal.stop(true, true).fadeOut(150).attr('aria-hidden', 'true');
+        // (สำคัญ) เคลียร์ timer เสมอ ถ้ามีการกดปิดเอง
+        if (autoCloseTimer) {
+            clearTimeout(autoCloseTimer);
+            autoCloseTimer = null;
+        }
+
+        // (สำคัญ) รีเซ็ตปุ่ม Submit และฟอร์มทุกครั้งที่ปิด
+        $submitBtn.prop('disabled', false).text(originalText);
+        $ratingForm[0].reset();
+        $stars.removeClass('selected');
+        $('#rating-value').val(0);
+        $ratingError.addClass('hidden');
+
+        // (สำคัญ) ซ่อน Thank you และแสดงฟอร์ม (สำหรับครั้งต่อไป)
+        $ratingForm.show();
+        $thankYouMsg.addClass('hidden');
+    }
+
+    // --- 4. (อัปเกรด) Modal Open/Close Logic ---
+    
+    // Open Modal
     $('#history-list').on('click', '.rate-btn', function() {
         const bookingId = $(this).data('booking-id');
         const machineName = $(this).data('machine-name');
 
-        currentRating = 0;
-        $stars.removeClass('selected');
-        $ratingForm[0].reset(); 
-        $ratingError.addClass('hidden'); 
-        $('#rating-value').val(0);
+        // รีเซ็ตฟอร์ม (ใช้ Logic จาก closeModal)
+        closeModal(); 
+        $modal.removeClass('hidden'); // แค่เปิด Modal
 
+        // ตั้งค่าฟอร์ม
         $('#modal-machine-name').text(machineName);
         $('#booking-id-input').val(bookingId);
-
-        $ratingForm.show();
-        $thankYouMsg.addClass('hidden');
-        
-        // This makes the modal visible
-        $modal.removeClass('hidden');
     });
 
-    // --- (FIX for "Cancel" Button) ---
-    // Close Modal when clicking "Cancel" button
+    // (อัปเกรด) Close Modal เมื่อคลิก "Cancel"
     $('#close-modal-btn').on('click', function() {
-        $modal.addClass('hidden');
+        closeModal();
     });
 
-    // Close Modal when clicking the dark background
+    // (อัปเกรด) Close Modal เมื่อคลิกพื้นหลัง
     $('.modal-overlay').on('click', function() {
-        $modal.addClass('hidden');
+        closeModal();
+    });
+    
+    // (เพิ่ม) Close Modal เมื่อคลิกปุ่ม "Close" บนหน้า Thank You
+    $modal.on('click', '#close-thank-you-btn', function() {
+        closeModal();
     });
 
-    // --- 4. Star Rating Logic ---
+
+    // --- 5. Star Rating Logic ---
     $stars.on('click', function() {
         currentRating = $(this).data('value');
         $('#rating-value').val(currentRating);
@@ -334,21 +356,20 @@ $(document).ready(function() {
         });
     });
     $stars.on('mouseout', function() {
+        let currentRating = $('#rating-value').val(); // (แก้เล็กน้อย) อ่านค่าล่าสุด
         $stars.each(function() {
             $(this).toggleClass('selected', $(this).data('value') <= currentRating);
         });
     });
 
-    // --- 5. (FIXED) Form Submission Logic ---
+
+    // --- 6. (อัปเกรด) Form Submission Logic ---
     $ratingForm.on('submit', function(e) {
-        e.preventDefault(); // Stop the form from reloading the page
+        e.preventDefault(); 
         
         const rating = $('#rating-value').val();
         const comments = $('#comments').val();
         const bookingId = $('#booking-id-input').val();
-        
-        // Get the userId. Try to get it from the form data (from auto-popup)
-        // If not, fall back to the main user ID from the page.
         const userId = $('#rating-form').data('userId') || primaryUserId;
 
         if (rating == 0 || rating == "0") {
@@ -356,28 +377,20 @@ $(document).ready(function() {
             return;
         }
 
-        // Disable the submit button to prevent double-clicking
-        const $submitBtn = $ratingForm.find('button[type="submit"]');
-        const originalText = $submitBtn.text();
+        // Disable ปุ่ม
         $submitBtn.prop('disabled', true).text('Submitting...');
 
-        // (FIXED) This payload matches your RatingController's RatingRequest
         const payload = {
             bookingId: parseInt(bookingId),
-            userId: parseInt(userId),        
-            rating: parseInt(rating),        
-            reviewText: comments             
+            userId: parseInt(userId), 
+            rating: parseInt(rating), 
+            reviewText: comments
         };
-
-        // (FIXED) Setup headers with CSRF token
-        const headers = {
-            'Content-Type': 'application/json'
-        };
+        const headers = { 'Content-Type': 'application/json' };
         if (csrfHeader && csrfToken) {
             headers[csrfHeader] = csrfToken;
         }
 
-        // (FIXED) This URL points to your RatingController
         fetch(`/api/ratings`, { 
             method: 'POST',
             headers: headers,
@@ -385,78 +398,66 @@ $(document).ready(function() {
         })
         .then(response => {
             if (!response.ok) {
-                // Read the error response from the controller
                 return response.json().then(err => {
-                    // Use the real error message from the server
                     throw new Error(err.error || 'Server returned an error');
                 }).catch(() => {
-                    // If JSON parsing fails, throw generic error
                     throw new Error('Server error: ' + response.status);
                 });
             }
             return response.json(); 
         })
         .then(data => {
+            // (อัปเกรด) สำเร็จ
             console.log("Rating submitted!", data);
             
-            // Show "Thank You" message
             $ratingForm.hide();
             $thankYouMsg.removeClass('hidden');
 
-            // Find the button on the page that was clicked
+            // ... (โค้ดแทนที่ปุ่ม [ให้คะแนน] ของคุณ) ...
             const $ratedButton = $(`.rate-btn[data-booking-id="${bookingId}"]`);
-            
-            // Create the star HTML
             const starsHtml = '<span class="rated-stars">' + '★'.repeat(rating) + '</span>' +
                               '<span class="unrated-stars">' + (rating < 5 ? '★'.repeat(5 - rating) : '') + '</span>';
-
-            // Replace the button with "Rated" text
             $ratedButton.replaceWith(
                 $('<span class="rated-text">คุณให้คะแนนแล้ว ' + starsHtml + '</span>')
             );
+            // ----------------------------------------------------
 
-            // Hide the modal after 2 seconds
-            setTimeout(() => {
-                $modal.addClass('hidden');
-                // Re-enable the button
-                $submitBtn.prop('disabled', false).text(originalText);
-            }, 2000);
+            // (อัปเกรด) ซ่อน Modal หลังจาก 2 วินาที โดยใช้ฟังก์ชันใหม่
+            autoCloseTimer = setTimeout(() => {
+                if (!$modal.hasClass('hidden')) { // ตรวจสอบว่ายังไม่ปิดไปก่อน
+                    closeModal();
+                }
+            }, 2000); // 2 วินาที
             
         })
         .catch(error => {
+            // (อัปเกรด) ล้มเหลว
             console.error('Error submitting rating:', error);
-            // Show the real error message from the server
             alert('เกิดข้อผิดพลาด: ' + error.message);
-            // Re-enable the button
+            
+            // คืนค่าปุ่มให้กดใหม่ได้ แต่ *ไม่ต้องปิด* Modal
             $submitBtn.prop('disabled', false).text(originalText);
         });
     });
 
-    // --- 6. (NEW) Auto-Popup Logic ---
-    // This checks if we just came from timer.html
+    // --- 7. (NEW) Auto-Popup Logic ---
     function checkAndOpenRatingModal() {
         const ratingInfoJSON = sessionStorage.getItem('ratingInfo');
         if (!ratingInfoJSON) {
-            return; // No rating to show
+            return; 
         }
-
         const ratingInfo = JSON.parse(ratingInfoJSON);
-        sessionStorage.removeItem('ratingInfo'); // Clean up
+        sessionStorage.removeItem('ratingInfo'); 
 
-        // We have data. Open the modal.
+        // (อัปเกรด) ใช้ Logic เดิมจาก Open Modal
         currentRating = 0;
         $stars.removeClass('selected');
         $ratingForm[0].reset();
         $ratingError.addClass('hidden');
         $('#rating-value').val(0);
-
         $('#modal-machine-name').text(ratingInfo.machineName);
         $('#booking-id-input').val(ratingInfo.bookingId);
-        
-        // (IMPORTANT) Store the userId for the submit form
-        // This 'userId' is the database key (e.g., 1)
         $('#rating-form').data('userId', ratingInfo.userId); 
-
         $ratingForm.show();
         $thankYouMsg.addClass('hidden');
         $modal.removeClass('hidden');
