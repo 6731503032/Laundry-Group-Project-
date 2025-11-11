@@ -129,6 +129,81 @@
             color: white;
             transition: all 0.2s;
         }
+        
+        /* === (Added) Rating Modal Styles === */
+        .secondary-btn {
+            padding: 14px;
+            background: linear-gradient(135deg, #868e96 0%, #495057 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        .secondary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(73, 80, 87, 0.4);
+        }
+        .secondary-btn:active {
+            transform: translateY(0);
+        }
+
+        /* 4. Star Rating Styles */
+        .star-rating .star {
+            cursor: pointer;
+            color: #d1d5db; /* gray-300 */
+            font-size: 2.5rem;
+            transition: color 0.2s;
+        }
+        .star-rating .star:hover,
+        .star-rating .star.selected {
+            color: #f59e0b; /* amber-500 */
+        }
+
+        /* 5. Rating Modal Styles */
+        #rating-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: none; /* ซ่อนไว้เป็นค่าเริ่มต้น */
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            padding: 1rem;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+        
+        /* 6. Rated Display Styles */
+         .rated-text {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #6c757d;
+         }
+        .rated-stars {
+            color: #f59e0b; 
+            font-size: 1.25rem;
+            vertical-align: middle;
+        }
+        .unrated-stars {
+            color: #d1d5db;
+            font-size: 1.25rem;
+            vertical-align: middle;
+        }
+        /* === (End Added) Rating Modal Styles === */
+        
     </style>
 </head>
 <body>
@@ -149,7 +224,7 @@
             </div>
 
             <span id="user-info" class="text-sm text-gray-600 font-medium sm:inline"
-                th:text="${currentUser.name} + ' (' + ${currentUser.role} + ')'">
+                  th:text="${currentUser.name} + ' (' + ${currentUser.role} + ')'">
                 User Name (Role)
             </span>
         </div>
@@ -163,8 +238,8 @@
         <div id="student-dashboard" th:if="${currentUser.role.toString() == 'STUDENT'}">
 
             <div id="active-booking-card" th:if="${activeBooking != null}"
-                class="card !bg-blue-600 text-white mb-8 hover:!bg-blue-700 transition-all cursor-pointer"
-                onclick="window.location.href='/timer'">
+                 class="card !bg-blue-600 text-white mb-8 hover:!bg-blue-700 transition-all cursor-pointer"
+                 onclick="window.location.href='/timer'">
                 
                 <h3 class="text-xl font-semibold mb-2">You have 1 active session!</h3>
                 <div class="flex justify-between items-center border-t border-blue-400 pt-3">
@@ -185,7 +260,7 @@
                 </div>
                 
                 <div th:unless="${#lists.isEmpty(studentBookings)}" th:each="booking : ${studentBookings}"
-                    class="card flex justify-between items-center">
+                     class="card flex justify-between items-center">
                     <div>
                         <p class="font-bold text-gray-900" th:text="${booking.machine.machineNumber}">Washer 1</p>
                         <p class="text-sm text-gray-600" th:text="'Slot Time: ' + ${#temporals.format(booking.bookingDate, 'dd MMM yyyy, HH:mm')}">Slot Time: 2025-11-03 10:00</p>
@@ -198,7 +273,38 @@
                     </span>
                 </div>
             </div>
-
+            
+            <h3 class="text-xl font-semibold mt-8 mb-4 text-blue-800">Completed History</h3>
+            <div id="history-list" class="space-y-4">
+                
+                <div th:if="${#lists.isEmpty(completedBookings)}">
+                     <div class="card">
+                        <p class="text-gray-500 text-center">No completed bookings found.</p>
+                     </div>
+                </div>
+                
+                <div th:unless="${#lists.isEmpty(completedBookings)}" th:each="booking : ${completedBookings}"
+                     class="card flex justify-between items-center">
+                    <div>
+                        <p class="font-bold text-gray-900" th:text="${booking.machine.machineNumber}">Washer 1</p>
+                        <p class="text-sm text-gray-600" th:text="'Slot Time: ' + ${#temporals.format(booking.bookingDate, 'dd MMM yyyy, HH:mm')}">Slot Time: 2025-11-03 10:00</p>
+                        <p class="text-sm text-green-600 font-medium">Completed</p>
+                    </div>
+                    
+                    <a th:if="${booking.rating == null}" 
+                       class="rate-btn primary-btn !py-2 !px-4 !text-sm"
+                       th:data-booking-id="${booking.id}"
+                       th:data-machine-name="${booking.machine.name}">
+                       Rate
+                    </a>
+                    
+                    <span th:if="${booking.rating != null}" class="rated-text text-right">
+                       <span class="text-sm text-gray-600">You rated</span><br/>
+                       <span class="rated-stars" th:text="${#strings.repeat('★', booking.rating)}"></span>
+                       <span class="unrated-stars" th:if="${booking.rating < 5}" th:text="${#strings.repeat('☆', 5 - booking.rating)}"></span>
+                    </span>
+                </div>
+            </div>
             <h3 class="text-xl font-semibold mt-8 mb-4 text-blue-800">Quick Status Overview</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="dashboard-stats">
                 <div class="card !bg-blue-500 text-white"><p class="text-sm opacity-80">Total Machines</p><p class="text-3xl font-bold mt-1" th:text="${studentStats.totalMachines}">0</p></div>
@@ -208,7 +314,7 @@
 
             <p class="mt-8 text-center">
                 <a th:href="@{/student/{studentId}/booking(studentId=${currentUser.studentId})}"
-                    class="primary-btn">Go to Booking Page</a>
+                   class="primary-btn">Go to Booking Page</a>
             </p>
         </div>
 
@@ -229,10 +335,10 @@
                             <p class="text-gray-500">No recent activity found.</p>
                         </div>
                         <div th:unless="${#lists.isEmpty(recentActivities)}" th:each="booking : ${recentActivities}"
-                            class="flex items-center justify-between p-3 border-b hover:bg-gray-50 rounded-lg">
+                             class="flex items-center justify-between p-3 border-b hover:bg-gray-50 rounded-lg">
                             <div class="flex items-center space-x-3">
                                 <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold"
-                                    th:text="${booking.getCustomerInitial()}">?</div>
+                                     th:text="${booking.getCustomerInitial()}">?</div>
                                 <div>
                                     <p class="font-bold text-gray-900">
                                         <span th:text="${booking.user.name}">User Name</span>
@@ -293,9 +399,9 @@
                     <div class="flex-grow">
                         <p class="font-bold" th:text="${machine.name} + ' (' + ${machine.machineNumber} + ')'">Washer 1 (001)</p>
                         <p class="text-sm"
-                            th:text="'Current: ' + ${machine.status}"
-                            th:classappend="${machine.status == 'AVAILABLE' ? 'text-emerald-600' : 'text-red-600'}">
-                            Current: Status
+                           th:text="'Current: ' + ${machine.status}"
+                           th:classappend="${machine.status == 'AVAILABLE' ? 'text-emerald-600' : 'text-red-600'}">
+                           Current: Status
                         </p>
                     </div>
                     <div class="flex items-center">
@@ -321,6 +427,37 @@
     </div>
 </div>
 
+<div id="rating-modal">
+    <div class="modal-content">
+        <h2 class="text-2xl font-bold text-center mb-2">How was your laundry?</h2>
+        <p class="text-center text-gray-600 mb-4">
+            Please rate your experience with 
+            <strong id="modal-machine-name">Machine Name</strong>
+        </p>
+        
+        <div class="border-t border-b border-gray-200 py-6 my-6">
+            <p class="text-lg font-semibold text-gray-800 text-center mb-3">Your Rating</p>
+            <div id="rating-stars" class="star-rating flex justify-center space-x-2">
+                <span class="star" data-value="1">★</span>
+                <span class="star" data-value="2">★</span>
+                <span class="star" data-value="3">★</span>
+                <span class="star" data-value="4">★</span>
+                <span class="star" data-value="5">★</span>
+            </div>
+        </div>
+        
+        <label for="rating-comment" class="text-lg font-semibold text-gray-800 mb-2">Additional Comments (Optional)</label>
+        <textarea id="rating-comment" 
+                  rows="4" 
+                  placeholder="The machine was clean, fast, etc."
+                  class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+        
+        <div class="mt-6 space-y-3">
+            <button id="submit-rating-btn" class="primary-btn w-full">Submit Feedback</button>
+            <button id="cancel-rating-btn" class="secondary-btn w-full">Cancel</button>
+        </div>
+    </div>
+</div>
 <script th:inline="javascript">
     const csrfToken = /*[[${_csrf?.token}]]*/ null;
     const csrfHeader = /*[[${_csrf?.headerName}]]*/ null;
@@ -603,6 +740,130 @@
         if(currentManager && currentManager.role === 'MANAGER') {
             renderAdminSchedule();
         }
+        
+        
+        // --- (Added) Rating Modal Logic ---
+
+        const $modal = $('#rating-modal');
+        const $ratingStars = $('#rating-stars .star');
+        let currentRating = 0;
+        let currentBookingId = null;
+        let $currentRateButton = null; // Store the button that was clicked
+
+        // -- Open Modal --
+        // We target '#student-dashboard' since '#history-list' is added via Thymeleaf
+        $('#student-dashboard').on('click', '.rate-btn', function(e) {
+            e.preventDefault();
+            $currentRateButton = $(this);
+            
+            currentBookingId = $currentRateButton.data('booking-id');
+            const machineName = $currentRateButton.data('machine-name');
+
+            $('#modal-machine-name').text(machineName);
+            resetRatingForm();
+            $modal.css('display', 'flex'); // Show modal
+        });
+
+        // -- Close Modal --
+        function hideModal() {
+            $modal.css('display', 'none'); // Hide modal
+            resetRatingForm();
+        }
+
+        $('#cancel-rating-btn').on('click', hideModal);
+        $modal.on('click', function(e) {
+            // Click on the background overlay
+            if (e.target === this) {
+                hideModal();
+            }
+        });
+
+        // -- Star Clicking --
+        $ratingStars.on('click', function() {
+            currentRating = $(this).data('value');
+            $ratingStars.removeClass('selected');
+            $ratingStars.each(function() {
+                if ($(this).data('value') <= currentRating) {
+                    $(this).addClass('selected');
+                }
+            });
+        });
+        
+        // (Optional) Hover effect
+        $ratingStars.on('mouseover', function() {
+            const hoverValue = $(this).data('value');
+            $ratingStars.each(function() {
+                if ($(this).data('value') <= hoverValue) {
+                    $(this).css('color', '#f59e0b');
+                } else {
+                    $(this).css('color', '#d1d5db');
+                }
+            });
+        }).on('mouseout', function() {
+            $ratingStars.css('color', ''); // Remove inline style, CSS classes will take over
+        });
+
+
+        // -- Reset Form --
+        function resetRatingForm() {
+            currentRating = 0;
+            currentBookingId = null;
+            $currentRateButton = null;
+            $ratingStars.removeClass('selected');
+            $('#rating-comment').val('');
+            $('#submit-rating-btn').prop('disabled', false).text('Submit Feedback');
+        }
+
+        // -- Submit Rating (AJAX) --
+        $('#submit-rating-btn').on('click', function() {
+            if (currentRating === 0) {
+                showMessage('Please select a rating (1-5 stars).', 'error');
+                return;
+            }
+
+            const comment = $('#rating-comment').val();
+            const $submitBtn = $(this);
+            $submitBtn.prop('disabled', true).text('Submitting...');
+
+            // *** This endpoint must exist on your server ***
+            $.ajax({
+                url: '/api/bookings/rate', 
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    bookingId: currentBookingId,
+                    rating: currentRating,
+                    comment: comment
+                }),
+                beforeSend: function(xhr) { if (csrfHeader && csrfToken) xhr.setRequestHeader(csrfHeader, csrfToken); },
+                success: function(response) {
+                    showMessage('Thank you for your feedback!', 'success');
+                    if ($currentRateButton) {
+                        // Create the "Rated" text display
+                        const ratedStars = '★'.repeat(currentRating);
+                        const unratedStars = (currentRating < 5) ? '☆'.repeat(5 - currentRating) : '';
+                        
+                        const $ratedSpan = $(
+                            '<span class="rated-text text-right">' +
+                            ' <span class="text-sm text-gray-600">You rated</span><br/>' +
+                            ' <span class="rated-stars">' + ratedStars + '</span>' +
+                            (unratedStars ? ' <span class="unrated-stars">' + unratedStars + '</span>' : '') +
+                            '</span>'
+                        );
+                        // Replace the original 'Rate' button with this text
+                        $currentRateButton.replaceWith($ratedSpan);
+                    }
+                    hideModal();
+                },
+                error: function(xhr) {
+                    const errorMsg = xhr.responseJSON ? (xhr.responseJSON.message || xhr.responseJSON.error) : 'Failed to submit rating. Please try again.';
+                    showMessage(errorMsg, 'error');
+                    $submitBtn.prop('disabled', false).text('Submit Feedback');
+                }
+            });
+        });
+        // --- (End Added) Rating Modal Logic ---
+        
     });
 
 </script>
