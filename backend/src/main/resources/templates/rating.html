@@ -162,38 +162,6 @@
                   th:text="${student.name + ' (' + student.id + ')'}"> User Name </span>
         </div>
     </nav>
-
-    <div id="dashboard-view" class="view">
-         <h2 class="text-2xl font-bold text-gray-800 mb-4">Completed History</h2>
-        
-        <div id="history-list" class="space-y-4">
-            
-            <div th:each="booking : ${completedHistory}" class="history-item">
-                <span class="history-details">
-                    <strong th:text="${booking.machine.name}">เครื่องซักผ้า A-05</strong>
-                    | <span th:text="${booking.formattedSlot}">3 พ.ย. 2025 (14:00 - 15:00)</span>
-                    | <span class="text-green-600">เสร็จสิ้น</span>
-                </span>
-                <a th:if="${booking.rating == null}" 
-                   class="rate-btn"
-                   th:data-booking-id="${booking.id}"
-                   th:data-machine-name="${booking.machine.name}">
-                   [ให้คะแนน]
-                </a>
-                
-                <span th:if="${booking.rating != null}" class="rated-text">
-                    คุณให้คะแนนแล้ว 
-                    <span class="rated-stars" th:text="${#strings.repeat('★', booking.rating)}"></span>
-                    <span class="unrated-stars" th:if="${booking.rating < 5}" th:text="${#strings.repeat('★', 5 - booking.rating)}"></span>
-                </span>
-            </div>
-            <div th:if="${#lists.isEmpty(completedHistory)}" class="text-gray-500 text-center py-4">
-                No completed bookings found.
-            </div>
-
-        </div>
-    </div>
-
     <!-- Issue #7: Add recent reviews section -->
     <div id="recent-reviews-view" class="mt-8 p-6 border-t border-gray-200">
         <h2 class="text-2xl font-bold text-gray-800 mb-4">Recent Reviews from Community</h2>
