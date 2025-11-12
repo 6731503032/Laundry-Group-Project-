@@ -2,7 +2,7 @@ ALMOST DONE(DEBUGGING)
 -
 -
 
-1. ADMIN BLOCK CANNOT (CONFIRM/CANCEL)
+1. AFTER ADMIN BLOCK CANNOT (CONFIRM/CANCEL)
 2. CANNOT BOOK TWICE IN A ROW
 3.On rating page when f5 review keep pop up and if reviews again it will show
 4. On Machine page on manager there's a edit machine but it doesn't show
@@ -12,7 +12,7 @@ ALMOST DONE(DEBUGGING)
 
 
 
-
+6. REDIRECT TO OWN AFTER BOOKING NOT TO 1 MANAGER
 
 PLEASE REFERENCE TO **LaundryManagementSystem.pdf** DONT JUST PUT EVERYTHING IN AI!
 -
@@ -28,6 +28,7 @@ Testcase: https://docs.google.com/document/d/19IPBqxg8vo9AKMhmAK6XzaB3JnzYQ7Isb2
 DATBASE DOCUMENT: https://mfuacth-my.sharepoint.com/:w:/g/personal/6731503032_lamduan_mfu_ac_th/EQIT1nWu78ZIr1eIjvEI0eEBEcCzy6KUxCraEcUwnCEAHg?e=mGUHeO
 
 1/2 person WORK ON UPLOADING THIS TO GOOGLE CLOUD!!!!
+
 
 
 
