@@ -1,9 +1,7 @@
 ALMOST DONE(DEBUGGING)
 -
 -
-FIX THESE:
-1. add button status but work on available only now need to add more logic to make it work on Booked In Use Finished/Waiting for Pickup Overdue/Uncollected
-<img width="1217" height="765" alt="image" src="https://github.com/user-attachments/assets/5124eedb-bdf3-4b65-8174-5ec7fa1a7ffe" />
+
 2. ADMIN BLOCK CANNOT (CONFIRM/CANCEL)
 3. CANNOT BOOK TWICE IN A ROW
 4. <img width="160" height="75" alt="image" src="https://github.com/user-attachments/assets/fbba7f20-16bf-4bd1-a319-70718e74f746" />
@@ -31,6 +29,7 @@ Testcase: https://docs.google.com/document/d/19IPBqxg8vo9AKMhmAK6XzaB3JnzYQ7Isb2
 DATBASE DOCUMENT: https://mfuacth-my.sharepoint.com/:w:/g/personal/6731503032_lamduan_mfu_ac_th/EQIT1nWu78ZIr1eIjvEI0eEBEcCzy6KUxCraEcUwnCEAHg?e=mGUHeO
 
 1/2 person WORK ON UPLOADING THIS TO GOOGLE CLOUD!!!!
+
 
 
 
