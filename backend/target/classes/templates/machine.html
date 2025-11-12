@@ -103,7 +103,7 @@
                                 </div>
                             </div>
                             <p class="text-gray-600 text-sm italic" th:text="|&quot;${review.reviewText}&quot;|">"Great machine!"</p>
-                            <p class="text-xs text-gray-400 mt-2" th:text="${#temporals.format(review.createdAt, 'dd MMM yyyy')}">Date</p>
+                            <p class="text-xs text-gray-400 mt-2" th:text="${review.formattedCreatedAt}"></span>
                         </div>
                         <p th:if="${#lists.isEmpty(recentReviews)}" class="text-gray-500 text-sm italic">No reviews yet.</p>
                     </div>
@@ -112,7 +112,7 @@
             </div>
         </div>
     </div>
-
+//
     <!-- Edit Machine Modal (Admin Only) -->
     <div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
