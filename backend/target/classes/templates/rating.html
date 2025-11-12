@@ -159,27 +159,12 @@
                 <a id="nav-booking" th:href="@{/student/{id}/booking(id=${student.id})}" class="tab-btn">Booking</a>
             </div>
             <span id="user-info" class="text-sm text-gray-600 font-medium sm:inline"
-                  th:text="${student.name + ' (' + student.id + ')'}">Wacharaphong (6731503032)</span>
+                  th:text="${student.name + ' (' + student.id + ')'}"> User Name (Role)</span>
         </div>
     </nav>
 
     <div id="dashboard-view" class="view">
-        <h2 class="text-2xl font-bold text-gray-800 mb-4">Upcoming Bookings</h2>
-        
-        <div id="upcoming-list" class="mb-8 space-y-4">
-            <div th:each="booking : ${upcomingBookings}" class="history-item">
-                <span class="history-details">
-                    <strong th:text="${booking.machine.name}">เครื่องอบผ้า B-01</strong>
-                    | <span th:text="${booking.formattedSlot}">3 พ.ย. 2025 (18:00 - 19:00)</span>
-                    | <span class="font-bold text-blue-600">Upcoming</span>
-                </span>
-            </div>
-            <div th:if="${#lists.isEmpty(upcomingBookings)}" class="text-gray-500 text-center py-4">
-                No upcoming bookings.
-            </div>
-        </div>
-
-        <h2 class="text-2xl font-bold text-gray-800 mb-4">Completed History</h2>
+         <h2 class="text-2xl font-bold text-gray-800 mb-4">Completed History</h2>
         
         <div id="history-list" class="space-y-4">
             
@@ -235,7 +220,7 @@
                     <p id="rating-error" class="text-red-500 text-sm mt-2 hidden">Please select at least one star.</p>
                 </div>
 
-                <div class.="mb-6">
+                <div class="mb-6">
                     <label for="comments" class="block text-sm font-medium text-gray-700 text-left mb-2">Additional Comments (Optional)</label>
                     <textarea id="comments" name="comments" rows="3" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="The machine was clean, fast, etc."></textarea>
                 </div>
