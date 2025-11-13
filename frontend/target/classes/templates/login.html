@@ -411,7 +411,9 @@
                         if (data.role === 'MANAGER') {
                             window.location.href = '/manager/dashboard';
                         } else {
-                            window.location.href = '/student/dashboard';
+                            // Use the studentId from the response data
+                            const studentId = data.studentId || data.id;
+                            window.location.href = `/student/${studentId}/dashboard`;
                         }
                     }, 1000);
                 } else {

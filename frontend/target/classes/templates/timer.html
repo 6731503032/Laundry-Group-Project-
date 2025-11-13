@@ -171,8 +171,21 @@
 
     <script>
         let timerInterval;
+        let studentId = null;
+
+        // Get studentId from sessionStorage if available
+        function getStudentId() {
+            const bookingData = sessionStorage.getItem('pendingBooking');
+            if (bookingData) {
+                const booking = JSON.parse(bookingData);
+                return booking.studentId;
+            }
+            return null;
+        }
 
         function startTimer() {
+            studentId = getStudentId();
+            
             let duration = 60 * 15; // 15 minutes in seconds
             const minutesEl = document.getElementById('minutes');
             const secondsEl = document.getElementById('seconds');
@@ -196,7 +209,8 @@
                     
                     // Redirect back to booking page after 3 seconds
                     setTimeout(() => {
-                        window.location.href = 'booking.html'; // Adjust path if needed
+                        const redirectUrl = studentId ? `/student/${studentId}/booking` : '/booking';
+                        window.location.href = redirectUrl;
                     }, 3000);
                 }
             }, 1000);
@@ -225,8 +239,8 @@
             
             // Redirect to the student dashboard after 3 seconds
             setTimeout(() => {
-                // This is the redirect URL from your login.js
-                window.location.href = '/student/dashboard'; 
+                const redirectUrl = studentId ? `/student/${studentId}/dashboard` : '/dashboard';
+                window.location.href = redirectUrl;
             }, 3000);
         }
 
