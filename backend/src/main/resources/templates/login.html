@@ -294,8 +294,10 @@
                   type="email"
                   id="registerEmail"
                   name="email"
-                  placeholder="Enter your email"
+                  placeholder="Enter your university email"
                   required
+                  pattern=".*@lamduan\.mfu\.ac\.th"
+                  title="Email must end with @lamduan.mfu.ac.th"
                 />
                 <p class="helper-text">Use your university email</p>
               </div>
@@ -388,9 +390,11 @@
                 if (data.role === "MANAGER") {
                   // --- THIS IS THE FIX ---
                   // It now uses the studentId (or equivalent ID) from the API
-                  window.location.href = "/manager/" + data.studentId + "/dashboard";
+                  window.location.href =
+                    "/manager/" + data.studentId + "/dashboard";
                 } else {
-                  window.location.href = "/student/" + data.studentId + "/dashboard";
+                  window.location.href =
+                    "/student/" + data.studentId + "/dashboard";
                 }
               }, 1000);
             },
@@ -411,11 +415,20 @@
           event.preventDefault();
 
           var $registerBtn = $("#registerBtn");
+          var email = $("#registerEmail").val(); // Get the email value
+          var requiredSuffix = "@lamduan.mfu.ac.th";
+
+          // --- NEW VALIDATION BLOCK ---
+          if (!email.endsWith(requiredSuffix)) {
+            showAlert("Email must end with " + requiredSuffix, "error");
+            return; // Stop the submission
+          }
+          // --- END OF VALIDATION BLOCK ---
 
           var requestBody = {
             studentId: $("#registerStudentId").val(),
             name: $("#registerName").val(),
-            email: $("#registerEmail").val(),
+            email: email, // Use the email variable
             password: $("#registerPassword").val(),
             role: $("#SelectRole").val(),
           };
@@ -430,7 +443,7 @@
             dataType: "json",
             success: function (data) {
               showAlert("Registration successful! Please login.", "success");
-              $("#registerFormElement")[0].reset(); 
+              $("#registerFormElement")[0].reset();
 
               setTimeout(function () {
                 $('.tab[data-tab="login"]').trigger("click");
