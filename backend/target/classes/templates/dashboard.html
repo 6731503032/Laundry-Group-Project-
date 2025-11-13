@@ -378,6 +378,8 @@
     var allMachines = /*[[${allMachines}]]*/ [];
     var todaysBookings = /*[[${todaysBookings}]]*/ [];
     const currentManager = /*[[${currentUser}]]*/ null;
+    let adminRefreshTimer = null;
+    const ADMIN_REFRESH_INTERVAL_MS = 5000;
 
     function showMessage(message, type = 'info') {
         const baseClass = "p-4 mb-2 rounded-lg shadow-lg text-white font-semibold transition-opacity duration-300";
@@ -392,6 +394,15 @@
         $(`#${viewId}`).show();
         $('#nav-tabs .tab-btn').removeClass('active');
         $(`#nav-tabs .tab-btn[data-target="${viewId}"]`).addClass('active');
+
+        if (currentManager && currentManager.role === 'MANAGER') {
+            if (viewId === 'admin-view') {
+                refreshAdminData(true);
+                startAdminAutoRefresh();
+            } else {
+                stopAdminAutoRefresh();
+            }
+        }
     }
 
     $(document).on('click', '.update-machine-btn', function() {
@@ -439,15 +450,59 @@
         return `${yyyy}-${mm}-${dd}`;
     }
 
+    function normalizeDateTimeString(value) {
+        if (!value || typeof value !== 'string') {
+            return value;
+        }
+        const match = value.match(/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})/);
+        if (match) {
+            return `${match[1]}:00`;
+        }
+        return value.replace('Z', '').split('.')[0];
+    }
+
+    function extractEntityId(entity) {
+        if (entity === null || entity === undefined) {
+            return null;
+        }
+        if (typeof entity === 'object') {
+            return entity.id ?? null;
+        }
+        return entity;
+    }
+
+    function resolveBookingUserName(booking) {
+        if (!booking) {
+            return 'Unknown';
+        }
+        const user = booking.user;
+        if (user && typeof user === 'object' && typeof user.name === 'string' && user.name.length) {
+            return user.name;
+        }
+        if (typeof booking.userName === 'string' && booking.userName.length) {
+            return booking.userName;
+        }
+        const userId = extractEntityId(user);
+        if (userId) {
+            return `User #${userId}`;
+        }
+        return 'Unknown';
+    }
+
     // --- (ฟังก์ชัน Render ที่แก้ไขแล้ว: มีปุ่ม ตกลง/ยกเลิก) ---
     function renderAdminSchedule() {
         const $list = $("#admin-schedule-list").empty();
         const todayStr = getTodaysDateString();
 
+        const machines = Array.isArray(allMachines) ? allMachines : [];
+        const bookings = Array.isArray(todaysBookings) ? todaysBookings : [];
+
         const bookingLookup = new Map();
-        todaysBookings.forEach(booking => {
-            if (booking.machine && booking.bookingDate) {
-                const key = `${booking.machine.id}-${booking.bookingDate}`;
+        bookings.forEach(booking => {
+            const machineId = extractEntityId(booking.machine);
+            if (machineId && booking.bookingDate) {
+                const normalized = normalizeDateTimeString(booking.bookingDate);
+                const key = `${machineId}-${normalized}`;
                 bookingLookup.set(key, booking);
             }
         });
@@ -455,25 +510,25 @@
         const timeSlots = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"];
         let hasAvailableMachines = false;
 
-        allMachines.forEach(machine => {
+        machines.forEach(machine => {
             if (machine.status === 'OUT_OF_SERVICE') { return; }
             hasAvailableMachines = true;
             let slotButtonsHTML = "";
 
             timeSlots.forEach(slotTime => {
                 const isoSlotTime = `${todayStr}T${slotTime}:00`;
-                const lookupKey = `${machine.id}-${isoSlotTime}`;
+                const lookupKey = `${machine.id}-${normalizeDateTimeString(isoSlotTime)}`;
                 const booking = bookingLookup.get(lookupKey);
 
-                let userName = "Unknown";
-                if (booking && booking.user) {
-                     userName = booking.user.name;
-                     if(booking.user.id === currentManager.id) userName = "ADMIN BLOCK";
+                const bookingUserId = extractEntityId(booking ? booking.user : null);
+                let userName = resolveBookingUserName(booking);
+                if (booking && currentManager && bookingUserId && bookingUserId === currentManager.id) {
+                    userName = 'ADMIN BLOCK';
                 }
 
                 if (booking) {
                     
-                    if (booking.status.name === 'PENDING') {
+                    if (booking.status && booking.status.name === 'PENDING') {
                         // --- (กรณีรออนุมัติ: แสดง 2 ปุ่ม) ---
                         slotButtonsHTML += `
                             <div class="text-center bg-yellow-50 p-2 rounded-lg border border-yellow-200">
@@ -540,6 +595,54 @@
         }
     }
 
+    function startAdminAutoRefresh() {
+        if (adminRefreshTimer) return;
+        adminRefreshTimer = setInterval(() => {
+            if ($('#admin-view').is(':visible')) {
+                refreshAdminData();
+            }
+        }, ADMIN_REFRESH_INTERVAL_MS);
+    }
+
+    function stopAdminAutoRefresh() {
+        if (adminRefreshTimer) {
+            clearInterval(adminRefreshTimer);
+            adminRefreshTimer = null;
+        }
+    }
+
+    function refreshAdminData(showLoading = false) {
+        if (!currentManager || currentManager.role !== 'MANAGER') {
+            return;
+        }
+
+        if (showLoading) {
+            $('#admin-schedule-list').html('<p class="text-gray-500">Loading schedule...</p>');
+        }
+
+        const todayStr = getTodaysDateString();
+        const startDate = `${todayStr}T00:00:00`;
+        const endDate = `${todayStr}T23:59:59`;
+
+        const machinesRequest = $.ajax({
+            url: '/api/machines',
+            dataType: 'json'
+        });
+        const bookingsRequest = $.ajax({
+            url: '/api/bookings/date-range',
+            data: { startDate, endDate },
+            dataType: 'json'
+        });
+
+        $.when(machinesRequest, bookingsRequest).done((machinesResp, bookingsResp) => {
+            allMachines = machinesResp[0] || [];
+            todaysBookings = bookingsResp[0] || [];
+            renderAdminSchedule();
+        }).fail(() => {
+            showMessage('Failed to refresh schedule.', 'error');
+        });
+    }
+
     // --- (ฟังก์ชันปุ่ม [✓ ตกลง] - ปรับปรุงแล้ว) ---
     $(document).on('click', '.btn-approve-booking', function() {
         const $btn = $(this);
@@ -557,15 +660,7 @@
             beforeSend: function(xhr) { if (csrfHeader && csrfToken) xhr.setRequestHeader(csrfHeader, csrfToken); },
             success: function(updatedBooking) {
                 showMessage('อนุมัติเรียบร้อย! เริ่มจับเวลาแล้ว', 'success');
-                // อัปเดตข้อมูลในตาราง local
-                const index = todaysBookings.findIndex(b => b.id === bookingId);
-                if (index > -1) {
-                    
-                    // The 'updatedBooking' response has 'status' which is the BookingStatus object
-                    // So we can just assign it directly.
-                    todaysBookings[index].status = updatedBooking.status;
-                }
-                renderAdminSchedule();
+                refreshAdminData();
             },
             error: function(xhr) {
                 console.error("Approve failed:", xhr.responseText);
@@ -597,8 +692,7 @@
             beforeSend: function(xhr) { if (csrfHeader && csrfToken) xhr.setRequestHeader(csrfHeader, csrfToken); },
             success: function() {
                 showMessage('ยกเลิกการจองเรียบร้อย', 'success');
-                todaysBookings = todaysBookings.filter(b => b.id !== bookingId);
-                renderAdminSchedule();
+                refreshAdminData();
             },
             error: function(xhr) {
                 showMessage('ไม่สามารถยกเลิกได้', 'error');
@@ -639,10 +733,7 @@
             beforeSend: function(xhr) { if (csrfHeader && csrfToken) xhr.setRequestHeader(csrfHeader, csrfToken); },
             success: function(newBooking) {
                 showMessage('ปิดกั้นช่วงเวลาสำเร็จ', 'success');
-                newBooking.user = currentManager;
-                newBooking.machine = allMachines.find(m => m.id === machineId);
-                todaysBookings.push(newBooking);
-                renderAdminSchedule();
+                refreshAdminData();
             },
             error: function(xhr) {
                 showMessage('เกิดข้อผิดพลาดในการปิดกั้น', 'error');
@@ -659,6 +750,7 @@
         $('#nav-tabs button.tab-btn[data-target="dashboard-view"]').addClass('active');
         if(currentManager && currentManager.role === 'MANAGER') {
             renderAdminSchedule();
+            refreshAdminData();
         }
         
         
