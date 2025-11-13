@@ -73,9 +73,10 @@
                         High-efficiency front-load washer with steam cycle for deep cleaning.
                     </p>
                 </div>
-                <button th:if="${currentUser != null and currentUser.role.toString() == 'MANAGER'}"
-                        onclick="openEditModal()"
-                        class="block w-full py-4 bg-purple-600 hover:bg-purple-700 text-white text-center font-bold rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                <button id="editMachineBtn"
+                    onclick="openEditModal()"
+                    class="hidden block w-full py-4 bg-purple-600 hover:bg-purple-700 text-white text-center font-bold rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                    type="button">
                     Edit Machine Details (Manager)
                 </button>
                 <div class="mt-10 pt-8 border-t">
@@ -199,9 +200,12 @@
         </div>
     </div>
 
-    <script>
-        const machineId = 0;
-        
+    <script th:inline="javascript">
+        const machineId = /*[[${machine.id}]]*/ 0;
+        const csrfToken = /*[[${_csrf?.token}]]*/ null;
+        const csrfHeader = /*[[${_csrf?.headerName}]]*/ null;
+        const serverRole = /*[[${currentUser != null ? currentUser.role?.toString() : null}]]*/ null;
+
         function openEditModal() {
             document.getElementById('editModal').classList.remove('hidden');
         }
@@ -224,13 +228,18 @@
                 description: document.getElementById('editDescription').value,
                 features: document.getElementById('editFeatures').value
             };
-            
+
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            if (csrfHeader && csrfToken) {
+                headers[csrfHeader] = csrfToken;
+            }
+
             try {
                 const response = await fetch(`/api/machines/${machineId}`, {
                     method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers,
                     body: JSON.stringify(data)
                 });
                 
@@ -252,6 +261,29 @@
                 closeEditModal();
             }
         });
+
+        (function showEditButtonIfManager() {
+            const btn = document.getElementById('editMachineBtn');
+            if (!btn) {
+                return;
+            }
+
+            let isManager = serverRole === 'MANAGER';
+            if (!isManager) {
+                try {
+                    const storedUser = JSON.parse(sessionStorage.getItem('user'));
+                    if (storedUser && storedUser.role === 'MANAGER') {
+                        isManager = true;
+                    }
+                } catch (err) {
+                    console.warn('Unable to read sessionStorage user role', err);
+                }
+            }
+
+            if (isManager) {
+                btn.classList.remove('hidden');
+            }
+        })();
     </script>
 </body>
 </html>
