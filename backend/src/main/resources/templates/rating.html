@@ -148,15 +148,15 @@
         }
     </style>
 </head>
-<body th:data-student-id="${student.id}">
+<body th:data-student-id="${student.studentId}">
 
 <div class="app-container">
     <nav id="navbar" class="p-4 border-b border-gray-100 flex justify-between items-center rounded-t-xl bg-gray-50">
         <h1 class="text-2xl font-bold text-gray-800">Laundry Hub</h1>
         <div class="flex space-x-4 items-center">
             <div id="nav-tabs" class="space-x-2">
-                <a id="nav-dashboard" th:href="@{/student/{id}/dashboard(id=${student.id})}" class="tab-btn active">Dashboard</a>
-                <a id="nav-booking" th:href="@{/student/{id}/booking(id=${student.id})}" class="tab-btn">Booking</a>
+                <a id="nav-dashboard" th:href="@{/student/{studentId}/dashboard(studentId=${student.studentId})}" class="tab-btn active">Dashboard</a>
+                <a id="nav-booking" th:href="@{/student/{studentId}/booking(studentId=${student.studentId})}" class="tab-btn">Booking</a>
             </div>
             <span id="user-info" class="text-sm text-gray-600 font-medium sm:inline"
                   th:text="${currentUser.name} + ' (' + ${currentUser.role} + ')'">
@@ -254,6 +254,7 @@ $(document).ready(function() {
 
     // --- 1. Get Student ID and CSRF Token ---
     const studentIdString = $('body').data('student-id'); 
+    const primaryStudentId = /*[[${student.studentId}]]*/ null;
     const primaryUserId = /*[[${student.id}]]*/ null;
     const csrfToken = $("meta[name='_csrf']").attr("content");
     const csrfHeader = $("meta[name='_csrf_header']").attr("content");
