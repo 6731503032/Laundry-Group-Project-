@@ -270,6 +270,7 @@ $(document).ready(function() {
     const $submitBtn = $ratingForm.find('button[type="submit"]');
     const originalText = $submitBtn.text();
     let autoCloseTimer = null; // (เพิ่ม) ตัวแปรสำหรับเก็บ timer
+    let redirectAfterCloseUrl = null;
 
 
     // --- 3. (อัปเกรด) สร้างฟังก์ชัน Close กลาง ---
@@ -303,6 +304,7 @@ $(document).ready(function() {
 
         // รีเซ็ตฟอร์ม (ใช้ Logic จาก closeModal)
         closeModal(); 
+        redirectAfterCloseUrl = null;
         $modal.removeClass('hidden'); // แค่เปิด Modal
 
         // ตั้งค่าฟอร์ม
@@ -312,17 +314,32 @@ $(document).ready(function() {
 
     // (อัปเกรด) Close Modal เมื่อคลิก "Cancel"
     $('#close-modal-btn').on('click', function() {
+        redirectAfterCloseUrl = null;
         closeModal();
     });
 
     // (อัปเกรด) Close Modal เมื่อคลิกพื้นหลัง
     $('.modal-overlay').on('click', function() {
+        const shouldRedirect = Boolean(redirectAfterCloseUrl);
         closeModal();
+        if (shouldRedirect) {
+            const target = redirectAfterCloseUrl;
+            redirectAfterCloseUrl = null;
+            window.location.href = target;
+        } else {
+            redirectAfterCloseUrl = null;
+        }
     });
     
     // (เพิ่ม) Close Modal เมื่อคลิกปุ่ม "Close" บนหน้า Thank You
     $modal.on('click', '#close-thank-you-btn', function() {
+        const shouldRedirect = Boolean(redirectAfterCloseUrl);
         closeModal();
+        if (shouldRedirect) {
+            const target = redirectAfterCloseUrl;
+            redirectAfterCloseUrl = null;
+            window.location.href = target;
+        }
     });
 
 
@@ -410,14 +427,18 @@ $(document).ready(function() {
             );
             // ----------------------------------------------------
 
-            // (อัปเกรด) ซ่อน Modal และรีเฟรชหน้า หลังจาก 2 วินาที
+            const dashboardUrl = primaryStudentId
+                ? `/student/${primaryStudentId}/dashboard`
+                : (studentIdString ? `/student/${studentIdString}/dashboard` : '/student/dashboard');
+            redirectAfterCloseUrl = dashboardUrl;
             autoCloseTimer = setTimeout(() => {
-                if (!$modal.hasClass('hidden')) { // ตรวจสอบว่ายังไม่ปิดไปก่อน
-                    closeModal();
+                closeModal();
+                if (redirectAfterCloseUrl) {
+                    const target = redirectAfterCloseUrl;
+                    redirectAfterCloseUrl = null;
+                    window.location.href = target;
                 }
-                // Reload page to refresh data
-                location.reload();
-            }, 2000); // 2 วินาที
+            }, 2000);
             
         })
         .catch(error => {
@@ -451,6 +472,7 @@ $(document).ready(function() {
         $('#rating-form').data('userId', ratingInfo.userId); 
         $ratingForm.show();
         $thankYouMsg.addClass('hidden');
+        redirectAfterCloseUrl = null;
         $modal.removeClass('hidden');
     }
 

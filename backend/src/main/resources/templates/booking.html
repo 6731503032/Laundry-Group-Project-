@@ -247,6 +247,29 @@
         return `${yyyy}-${mm}-${dd}`;
     }
 
+    function normalizeDateTimeString(value) {
+        if (!value || typeof value !== 'string') {
+            return value;
+        }
+        const match = value.match(/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})/);
+        if (match) {
+            return `${match[1]}:00`;
+        }
+        return value.replace('Z', '').split('.')[0];
+    }
+
+    function extractEntityId(entity) {
+        if (entity === null || entity === undefined) {
+            return null;
+        }
+        if (typeof entity === 'object') {
+            if (typeof entity.id !== 'undefined' && entity.id !== null) {
+                return entity.id;
+            }
+        }
+        return entity;
+    }
+
     function fetchAvailableMachines() {
         return $.ajax({
             url: "/api/machines/available",
@@ -282,8 +305,10 @@
             
             const bookingLookup = new Set();
             bookings.forEach(booking => {
-                if (booking.machine) {
-                    const key = `${booking.machine.id}-${booking.bookingDate}`;
+                const machineId = extractEntityId(booking.machine);
+                if (machineId && booking.bookingDate) {
+                    const normalized = normalizeDateTimeString(booking.bookingDate);
+                    const key = `${machineId}-${normalized}`;
                     bookingLookup.add(key);
                 }
             });
@@ -298,8 +323,13 @@
                 let slotButtonsHTML = "";
                 timeSlots.forEach((slotTime) => {
                     
+                    const machineId = extractEntityId(machine);
+                    if (!machineId) {
+                        return;
+                    }
                     const isoSlotTime = `${todayStr}T${slotTime}:00`;
-                    const lookupKey = `${machine.id}-${isoSlotTime}`;
+                    const normalizedSlot = normalizeDateTimeString(isoSlotTime);
+                    const lookupKey = `${machineId}-${normalizedSlot}`;
                     const isTaken = bookingLookup.has(lookupKey);
                     
                     if (isTaken) {
